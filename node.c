@@ -12,6 +12,7 @@ struct Node* get_node(struct Frame* fr,
 
    node->row = row;
    node->col = col;
+   node->is_focus = 0;
 
    if(fr == NULL){return node;}
    node->fr = fr;

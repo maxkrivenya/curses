@@ -4,6 +4,7 @@ struct Node{
     struct Frame* fr;
     int row;
     int col;
+    int is_focus;
     struct Node* prev;
     struct Node* next;
 };

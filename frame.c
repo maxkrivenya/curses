@@ -114,54 +114,92 @@ void delete_frame(struct Frame** frame){
 
 /*--------------------------------------------------------*/
 
+struct Node* find_closest_field(struct Frame* fr, int row, int cur){
+    if(fr               == NULL){return NULL;}
+    if(fr->field        == NULL){return NULL;}
+    if(fr->field->head  == NULL){return NULL;}
+    cur /= CHUNK;
+
+    int i =  fr->ws.width;
+    struct Node* ret = NULL;
+    struct List* list = fr->field; 
+    struct Node* nptr = list->head;
+
+    do{
+        if(nptr->row <= row && row < (nptr->row + nptr->fr->ws.height)){
+            if(nptr->col > cur && i > nptr->col - cur){
+                i = nptr->col - cur;
+                ret = nptr;
+            }
+        }
+        nptr = nptr->next;
+    }while(nptr != NULL);
+
+    return ret;
+}
+
 void print_frame(struct Frame* fr){
+    if(fr == NULL){return;}
 
     printf("\n");
 
-    long i = 0;
-    long j = 0;
+    int j = 0;
     long size = fr->ws.width * fr->ws.height * CHUNK;
-    long next = 1;
-    int field_row = 0;
-    struct Node* fld = NULL;
-    if(fr->field != NULL){ 
-        fld = fr->field->head; 
-        if(fld != NULL){ 
-            next = ((fr->ws.width * fld->row) + fld->col) * CHUNK; 
-        }
-
-    }
+    struct Node* next = NULL;
+    int write_until = 0;
 
     printf("%s%s", fr->bc, fr->fc);
-    do{
-        if(fld != NULL){
-            if(i > next){
-                fld = fld->next;
-                if(fld != NULL){ 
-                    next = ((fr->ws.width * fld->row) + fld->col) * CHUNK; 
-                }
-            }
-            /*--------------*/
-            if(i == next){
-                //change color
-                printf("%s%s", fld->fr->bc, fld->fr->fc);
 
-                //print a row of the field
-                for(j = 0; j < fld->fr->ws.width * CHUNK; j++, i++){
-                    printf("%c", fld->fr->buf[field_row*fld->fr->ws.width * CHUNK + j]);
-                }
-
-                printf("%s", RESET);
-                printf("%s%s", fr->bc, fr->fc);
-                field_row++;
-                if(field_row == fld->fr->ws.height){ field_row = 0; next = -1;}
-                else{ next += fr->ws.width * CHUNK; }
-            }
-            /*--------------*/
+    if(fr->field != NULL){
+        if(fr->field->head != NULL){
+            fr->field->head->is_focus = 1;
         }
-        printf("%c", fr->buf[i]);
-        i++;
-    }while(i < size);
+    }
+
+for(int l = 0; l < 10; l++){
+    struct Node* focus = fr->field->head;
+    for(int x = 0; x < l; x++){
+        if(focus->next == NULL){
+            focus = fr->field->head;
+        }else{
+            focus = focus->next;
+        }
+    }
+    focus->is_focus = 1;
+
+
+    for(int i = 0; i < fr->ws.height; i++){
+        j = 0;
+        do{
+            next = find_closest_field(fr, i, j);
+
+            if(next == NULL){
+                write_until = fr->ws.width;
+            }else{
+                write_until = next->col;
+            }
+
+            for(; j < write_until * CHUNK; j++){
+                printf("%c", fr->buf[i * fr->ws.width * CHUNK + j ]);
+            }
+
+            if(next != NULL){
+                if(next->is_focus){
+                    printf("%s%s", BACK_CYAN, FORE_YELLOW);
+                }else{
+                    printf("%s%s", next->fr->bc, next->fr->fc);
+                }
+                for(int k = 0; k < next->fr->ws.width * CHUNK; k++, j++){
+                    printf("%c", next->fr->buf[((i - next->row)*next->fr->ws.width * CHUNK  + k)]);
+                }
+                printf(RESET);
+                printf("%s%s", fr->bc, fr->fc);
+            }
+        }while(j < fr->ws.width * CHUNK);
+    }
+    sleep(1);
+    focus->is_focus = 0;
+}
     printf("%s", RESET);
 
 

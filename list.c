@@ -19,8 +19,9 @@ void push(struct List* list, struct Node* new_node){
         list->tail = new_node;
         return;
     }
-    list->tail = new_node;
     new_node->prev = list->tail;
+    list->tail->next = new_node;
+    list->tail = new_node;
     return;
 }
 
