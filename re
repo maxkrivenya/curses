@@ -1,3 +1,3 @@
 rm main
-make main
+make
 ./main
