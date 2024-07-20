@@ -204,34 +204,7 @@ for(int l = 0; l < 10; l++){
 
 
 }
-/*
 
-void render_frame(struct Frame* fr, int lvl){
-    if(fr->bc != NULL){
-        console->bc = fr->bc;
-    }
-    if(fr->fc != NULL){
-        console->fc = fr->fc;
-    }
-
-    //TODO: check for lvl
-    
-
-    int i_diff = (console->ws.height - fr->ws.height) / 2;
-    i_diff = i_diff - (i_diff % CHUNK);
-    int j_diff = (console->ws.width - fr->ws.width )/ 2;
-    j_diff = j_diff - (j_diff % CHUNK);
-
-    int rows_skip = (i_diff + lvl) * console->ws.width * CHUNK;
-    int cols_skip = (j_diff + lvl) * CHUNK;
-
-    for(int i = 0; i < fr->ws.height; i++){
-        for(int j = 0; j < fr->ws.width * CHUNK; j++){
-            *(console->buf + (rows_skip + i*console->ws.width*CHUNK) + (cols_skip + j)) = *(fr->buf + (i * fr->ws.width * CHUNK) + (j));
-        }
-    }
-}
-*/
 void render_frame_to_frame(struct Frame* dest, struct Frame* fr, int lvl){
     if(fr->bc != NULL){
         dest->bc = fr->bc;
