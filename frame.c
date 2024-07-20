@@ -52,12 +52,14 @@ void name(struct Frame* fr){
 
 /*------------------------------------------------------*/
 
-struct Frame* new_frame(struct WinSize ws, const char* bc, const char* fc, char* frame_name){
+struct Frame* new_frame(struct WinSize ws, int rows, int cols, const char* bc, const char* fc, char* frame_name){
     struct Frame* fr = (struct Frame*)calloc(1, sizeof(struct Frame));
     fr->ws.width = ws.width;
     fr->ws.height = ws.height;
     fr->bc = bc;
     fr->fc = fc;
+    fr->col = cols;
+    fr->row = rows;
     fr->buf = (char*)calloc(fr->ws.height * fr->ws.width, CHUNK);
     fr->field = new_list();
 
@@ -80,25 +82,25 @@ struct Frame* new_frame(struct WinSize ws, const char* bc, const char* fc, char*
     return fr;
 }
 
-struct Frame* new_default_frame(struct WinSize ws){
+struct Frame* new_default_frame(struct WinSize ws, int rows, int cols){
 
-    return new_frame(ws, BACK_BLUE, FORE_CYAN, NULL);
+    return new_frame(ws, rows, cols, BACK_BLUE, FORE_CYAN, NULL);
 }
 
 struct Frame* new_console_full(const char* bc, const char* fc, char* name){
-    return new_frame(get_console_size(), bc, fc, name);    
+    return new_frame(get_console_size(), 0, 0, bc, fc, name);    
 }
 
 struct Frame* new_console_noname(const char* bc, const char* fc, char* name){
     if(bc != NULL && fc != NULL){
-        return new_frame(get_console_size(), bc, fc, NULL);
+        return new_frame(get_console_size(), 0, 0, bc, fc, NULL);
     }else{
-        return new_default_frame(get_console_size());
+        return new_default_frame(get_console_size(), 0, 0);
     }
 }
 
 struct Frame* new_default_console(){
-    return new_default_frame(get_console_size());
+    return new_default_frame(get_console_size(), 0, 0);
 }
 
 
@@ -126,9 +128,9 @@ struct Node* find_closest_field(struct Frame* fr, int row, int cur){
     struct Node* nptr = list->head;
 
     do{
-        if(nptr->row <= row && row < (nptr->row + nptr->fr->ws.height)){
-            if(nptr->col > cur && i > nptr->col - cur){
-                i = nptr->col - cur;
+        if(nptr->fr->row <= row && row < (nptr->fr->row + nptr->fr->ws.height)){
+            if(nptr->fr->col > cur && i > nptr->fr->col - cur){
+                i = nptr->fr->col - cur;
                 ret = nptr;
             }
         }
@@ -152,7 +154,7 @@ void print_frame(struct Frame* fr){
 
     if(fr->field != NULL){
         if(fr->field->head != NULL){
-            fr->field->head->is_focus = 1;
+            fr->field->head->fr->is_focus = 1;
         }
     }
 
@@ -165,7 +167,7 @@ for(int l = 0; l < 10; l++){
             focus = focus->next;
         }
     }
-    focus->is_focus = 1;
+    focus->fr->is_focus = 1;
 
 
     for(int i = 0; i < fr->ws.height; i++){
@@ -176,7 +178,7 @@ for(int l = 0; l < 10; l++){
             if(next == NULL){
                 write_until = fr->ws.width;
             }else{
-                write_until = next->col;
+                write_until = next->fr->col;
             }
 
             for(; j < write_until * CHUNK; j++){
@@ -184,13 +186,13 @@ for(int l = 0; l < 10; l++){
             }
 
             if(next != NULL){
-                if(next->is_focus){
+                if(next->fr->is_focus){
                     printf("%s%s", BACK_CYAN, FORE_YELLOW);
                 }else{
                     printf("%s%s", next->fr->bc, next->fr->fc);
                 }
                 for(int k = 0; k < next->fr->ws.width * CHUNK; k++, j++){
-                    printf("%c", next->fr->buf[((i - next->row)*next->fr->ws.width * CHUNK  + k)]);
+                    printf("%c", next->fr->buf[((i - next->fr->row)*next->fr->ws.width * CHUNK  + k)]);
                 }
                 printf(RESET);
                 printf("%s%s", fr->bc, fr->fc);
@@ -198,7 +200,7 @@ for(int l = 0; l < 10; l++){
         }while(j < fr->ws.width * CHUNK);
     }
     sleep(1);
-    focus->is_focus = 0;
+    focus->fr->is_focus = 0;
 }
     printf("%s", RESET);
 

@@ -21,11 +21,11 @@ void push(struct List* list, struct Node* new_node){
     }
 
     struct Node* nptr = list->head;
-    while(nptr->row < new_node->row){
+    while(nptr->fr->row < new_node->fr->row){
         if(nptr->next == NULL) { break; }
         nptr = nptr->next;
     }
-    while(nptr->row == new_node->row  && nptr->col < new_node->col){
+    while(nptr->fr->row == new_node->fr->row  && nptr->fr->col < new_node->fr->col){
         if(nptr->next == NULL) { break; }
         nptr = nptr->next;
     }

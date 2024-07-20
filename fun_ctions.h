@@ -33,17 +33,17 @@ void color_play(struct Frame* console){
 void running_frame(struct Frame* console, struct Frame* fr){
     int turn = 0;
 
-    struct Node* node = get_node(fr, 1, 1,  NULL, NULL);
+    struct Node* node = get_node(fr, NULL, NULL);
 
     push(console->field, node);
     for(int i = 0; i < 8; i++){
         turn = i % 4;
 
         switch(turn){
-            case 0: { console->field->head->row += 30; break; }
-            case 1: { console->field->head->col += 100; break; }
-            case 2: { console->field->head->row -= 30; break; }
-            case 3: { console->field->head->col -= 100; break; }
+            case 0: { console->field->head->fr->row += 30; break; }
+            case 1: { console->field->head->fr->col += 100; break; }
+            case 2: { console->field->head->fr->row -= 30; break; }
+            case 3: { console->field->head->fr->col -= 100; break; }
             default: break;
         }
         system("clear");
@@ -59,9 +59,9 @@ void play_frame(struct Frame* console, struct Frame fr, int lvl){
     struct WinSize ws1 = {console->ws.height/2, console->ws.width/2};
     struct Frame* frame1;
     switch(lvl){
-        case 0 :{ frame1 = new_frame(ws1, BACK_BLUE, FORE_CYAN, "frame1"); break;}
-        case 1: { frame1 = new_frame(ws1, BACK_BLACK, FORE_YELLOW, "frame1");break; }
-        default:{ frame1 = new_frame(ws1, BACK_RED, FORE_GREEN, "frame1");break;}
+        case 0 :{ frame1 = new_frame(ws1, 0, 0, BACK_BLUE, FORE_CYAN, "frame1"); break;}
+        case 1: { frame1 = new_frame(ws1, 0, 0, BACK_BLACK, FORE_YELLOW, "frame1");break; }
+        default:{ frame1 = new_frame(ws1, 0, 0, BACK_RED, FORE_GREEN, "frame1");break;}
     }
     render_frame_to_frame(&fr, frame1, lvl + 1); 
     while(1){
