@@ -74,10 +74,12 @@ struct Frame* new_frame(struct WinSize ws, int rows, int cols, const char* bc, c
         fr->buf[i * CHUNK] = ' ';
     }
 
-    corners(fr);
-    walls(fr);
-    floors(fr);
-    name(fr);
+    if(!cols && !rows){
+        corners(fr);
+        walls(fr);
+        floors(fr);
+        name(fr);
+    }
 
     return fr;
 }
@@ -158,18 +160,6 @@ void print_frame(struct Frame* fr){
         }
     }
 
-for(int l = 0; l < 10; l++){
-    struct Node* focus = fr->field->head;
-    for(int x = 0; x < l; x++){
-        if(focus->next == NULL){
-            focus = fr->field->head;
-        }else{
-            focus = focus->next;
-        }
-    }
-    focus->fr->is_focus = 1;
-
-
     for(int i = 0; i < fr->ws.height; i++){
         j = 0;
         do{
@@ -199,9 +189,6 @@ for(int l = 0; l < 10; l++){
             }
         }while(j < fr->ws.width * CHUNK);
     }
-    sleep(1);
-    focus->fr->is_focus = 0;
-}
     printf("%s", RESET);
 
 
