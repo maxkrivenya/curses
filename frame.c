@@ -156,7 +156,7 @@ void print_frame(struct Frame* fr){
 
     if(fr->field != NULL){
         if(fr->field->head != NULL){
-            fr->field->head->fr->is_focus = 1;
+            //fr->field->head->fr->is_focus = 1;
         }
     }
 
