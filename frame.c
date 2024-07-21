@@ -171,13 +171,13 @@ int print_row(struct Frame* fr, int row, int col, int level){
     struct Node* next = NULL;
     int write_until = 0;
 
-    if(fr->is_field){
+    if(fr->details.is_field){
         for(int k = 0; k < strlen(fr->name); k++){
             printf("%c", fr->name[k]);
         }
     }
     printf("%s%s", fr->bc, fr->fc);
-    if(fr->is_focus == 1){
+    if(fr->details.is_focus == 1){
         printf(RESET);
         printf("%s%s", BACK_CYAN, FORE_YELLOW);
     }
@@ -196,7 +196,7 @@ int print_row(struct Frame* fr, int row, int col, int level){
 
         if(next != NULL){
             print_row(next->fr, row - fr->row, 0, level + 1);
-            if(next->fr->is_field){
+            if(next->fr->details.is_field){
                 j += (next->fr->ws.width + strlen(next->fr->name))* CHUNK;
             }else{
                 j += (next->fr->ws.width)* CHUNK;
@@ -205,7 +205,7 @@ int print_row(struct Frame* fr, int row, int col, int level){
             printf("%s%s", fr->bc, fr->fc);
         }else{
             printf("%s%s", fr->bc, fr->fc);
-            if(fr->is_focus == 1){
+            if(fr->details.is_focus == 1){
                 printf(RESET);
                 printf("%s%s", BACK_CYAN, FORE_YELLOW);
             }
@@ -232,7 +232,7 @@ void print_frame(struct Frame* fr){
 
     if(fr->field != NULL){
         if(fr->field->head != NULL){
-            //fr->field->head->fr->is_focus = 1;
+            //fr->field->head->fr->details.is_focus = 1;
         }
     }
 
@@ -276,10 +276,10 @@ void push_frame(struct Frame* dest, struct Frame* fr){
         fr->row = fr->row - fr->row % CHUNK;
         fr->col = (dest->ws.width - fr->ws.width) / 2;
         fr->col = fr->col - fr->col % CHUNK;
-        fr->is_field = 0;
+        fr->details.is_field = 0;
     }
     else{
-        fr->is_field = 1;
+        fr->details.is_field = 1;
     }
 
     push(dest->field, get_node(fr, NULL, NULL));
@@ -296,7 +296,7 @@ struct WinSize get_cursor(struct Frame* fr, struct Frame* x){
     do{
         if(nptr->fr == x){
             ws.height = fr->row + x->row;
-            if(x->is_field){
+            if(x->details.is_field){
                 ws.width  = fr->col + x->col + strlen(x->name);
             }
             return ws;

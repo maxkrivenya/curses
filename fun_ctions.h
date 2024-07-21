@@ -54,6 +54,7 @@ void running_frame(struct Frame* console, struct Frame* fr){
 
 }
 
+/*
 void play_frame(struct Frame* console, struct Frame fr, int lvl){
     char input = '\0';
     struct WinSize ws1 = {console->ws.height/2, console->ws.width/2};
@@ -63,7 +64,7 @@ void play_frame(struct Frame* console, struct Frame fr, int lvl){
         case 1: { frame1 = new_frame(ws1, 0, 0, BACK_BLACK, FORE_YELLOW, "frame1");break; }
         default:{ frame1 = new_frame(ws1, 0, 0, BACK_RED, FORE_GREEN, "frame1");break;}
     }
-    render_frame_to_frame(&fr, frame1, lvl + 1); 
+    push(console, frame1);
     while(1){
         print_frame(&fr);
         input = '\0';
@@ -77,3 +78,4 @@ void play_frame(struct Frame* console, struct Frame fr, int lvl){
     }
 }
 
+*/

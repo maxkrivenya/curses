@@ -36,7 +36,7 @@ int main(){
 
     do{
         pos = get_cursor(console, nptr->fr);
-        nptr->fr->is_focus = 1;
+        nptr->fr->details.is_focus = 1;
         print_frame(console);
         printf("\033[%d;%dH", pos.height + 1, pos.width + 1 + cursor);
         do{
@@ -55,7 +55,7 @@ int main(){
             else{
                 cursor = 0;
                 input = '\0';
-                nptr->fr->is_focus = 0;
+                nptr->fr->details.is_focus = 0;
                 if(nptr->next != NULL){
                     nptr = nptr->next;
                 }else{
@@ -63,7 +63,7 @@ int main(){
                         nptr = nptr->prev;
                     }while(nptr->prev != NULL);
                 }
-                nptr->fr->is_focus = 1;
+                nptr->fr->details.is_focus = 1;
                 pos = get_cursor(console, nptr->fr);
                 printf("\033[%d;%dH", pos.height + 1, pos.width + 1 + cursor);
             }
