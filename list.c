@@ -3,17 +3,14 @@
 struct List* new_list(){
     struct List* list = (struct List*)calloc(1, sizeof(struct List));
     list->head = NULL;
-    list->tail = NULL;
     return list;
 }
 
 void push(struct List* list, struct Node* new_node){
     if(list->head == NULL){
         list->head = new_node;
-//        list->tail = new_node;
         return;
     }
-//if(list->head == list->tail){
     if(list->head->next == NULL){
         new_node->prev = list->head;
         new_node->next = list->head;
@@ -22,82 +19,23 @@ void push(struct List* list, struct Node* new_node){
         //list->tail = new_node;
         return;
     }
-/*
-    struct Node* nptr = list->head;
-    while(nptr->fr->row < new_node->fr->row){
-        if(nptr->next == NULL) { break; }
-        nptr = nptr->next;
-    }
-    while(nptr->fr->row == new_node->fr->row  && nptr->fr->col < new_node->fr->col){
-        if(nptr->next == NULL) { break; }
-        nptr = nptr->next;
-    }
 
-    if(nptr == list->tail){
-        new_node->prev = list->tail;
-        list->tail->next = new_node;
-        list->tail = new_node;
-        return;
-    }
-    if(nptr == list->head){
-        new_node->next = list->head;
-        list->head->prev = new_node;
-        list->head = new_node;
-        return;
-    }
-*/
     list->head->prev->next = new_node;
     new_node->prev = list->head->prev;
     new_node->next = list->head;
     list->head->prev = new_node;
-
-
-    /*
-    new_node->prev = nptr;
-    new_node->next = nptr->next;
-    nptr->next->prev = new_node;
-    nptr->next = new_node;
-    */
     return;
 }
 
-void pop(struct List* list /* , struct Frame* fr */){
-    //if(fr == NULL) { return; }
+void pop(struct List* list){
     if(list == NULL){ return; }
     if(list->head == NULL){ return; }
-    /*
-    struct Node* nptr = list->head;
-    do{
-        if(nptr->fr == fr){
-            if(nptr->prev == NULL && nptr->next == NULL){
-                delete_node(nptr);
-                return;
-            }
-            if(nptr->prev == NULL){
-                list->head = list->head->next;
-                list->head->prev = NULL;
-                delete_node(nptr);
-                return;
-            }
-            if(nptr->next == NULL){
-                list->tail = list->tail->prev;
-                list->tail->next = NULL;
-                delete_node(nptr);
-                return;
-            }
-            nptr->prev->next = nptr->next;
-            nptr->next->prev = nptr->prev;
-            delete_node(nptr);
-            return;
-        }
-        nptr = nptr->next;
-    }while(nptr != NULL);
-*/
     list->head = list->head->next;
 }
 
 void free_list(struct List* list){
     if(list == NULL){return;}
+    if(list->head == NULL){ return; }
     struct Node * node = list->head;
     struct Node* stopper = list->head->prev;
 
