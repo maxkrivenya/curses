@@ -25,3 +25,6 @@ void delete_frame(struct Frame** frame);
 void print_frame(struct Frame* fr);
 //void render_frame(struct Frame* fr, int lvl);
 void render_frame_to_frame(struct Frame* dest, struct Frame* fr, int lvl);
+struct Node* get_first_field(struct List* list);
+void push_frame(struct Frame* dest, struct Frame* fr);
+struct WinSize get_cursor(struct Frame* fr, struct Frame* x);

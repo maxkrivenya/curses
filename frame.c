@@ -125,21 +125,94 @@ struct Node* find_closest_field(struct Frame* fr, int row, int cur){
     cur /= CHUNK;
 
     int i =  fr->ws.width;
+    struct Node* from_list = 0;
     struct Node* ret = NULL;
     struct List* list = fr->field; 
     struct Node* nptr = list->head;
 
     do{
+        //if field exists in current row
         if(nptr->fr->row <= row && row < (nptr->fr->row + nptr->fr->ws.height)){
+            //if starts after col
             if(nptr->fr->col > cur && i > nptr->fr->col - cur){
                 i = nptr->fr->col - cur;
                 ret = nptr;
+            }else{
+                if(nptr->fr->field != NULL){
+                    from_list = find_closest_field(nptr->fr, row - nptr->fr->row, cur - nptr->fr->col);
+                    if(from_list != NULL){
+                        if( i > nptr->fr->col + from_list->fr->col - cur){
+                            i = nptr->fr->col + from_list->fr->col - cur;
+                            ret = from_list;
+                        }
+                    }
+                }
+
             }
         }
+        /*          29 30 |31 32 33 |34 35            */
         nptr = nptr->next;
     }while(nptr != NULL);
 
     return ret;
+}
+
+struct Node* get_first_field(struct List* list){
+    if(list == NULL) {return NULL; }
+    if(list->head == NULL) { return NULL; }
+    struct Node* ret = get_first_field(list->head->fr->field);
+    if(ret != NULL){
+        return ret;
+    }
+    return list->head;
+}
+
+int print_row(struct Frame* fr, int row, int col){
+    int i = row - fr->row;
+    int j = 0;
+    struct Node* next = NULL;
+    int write_until = 0;
+
+    printf("%s%s", fr->bc, fr->fc);
+    if(fr->is_focus == 1){
+        printf(RESET);
+        printf("%s%s", BACK_CYAN, FORE_YELLOW);
+    }
+    do{
+        next = find_closest_field(fr, i, j);
+
+        if(next == NULL){
+            write_until = fr->ws.width;
+        }else{
+            write_until = next->fr->col;
+        }
+
+        for(; j < write_until * CHUNK; j++){
+            printf("%c", *(fr->buf + (i*fr->ws.width)*CHUNK + j));
+
+        }
+
+        if(next != NULL){
+            print_row(next->fr, row - fr->row, 0);
+            j += next->fr->ws.width * CHUNK;
+            printf("%s%s", fr->bc, fr->fc);
+        }else{
+            printf("%s%s", fr->bc, fr->fc);
+            if(fr->is_focus == 1){
+                printf(RESET);
+                printf("%s%s", BACK_CYAN, FORE_YELLOW);
+            }
+            for(; j < fr->ws.width * CHUNK; j++){
+                printf("%c", fr->buf[i * fr->ws.width * CHUNK + j ]);
+            }
+            printf(RESET);
+            return col + j;
+        }
+
+    }while(j < fr->ws.width * CHUNK);
+            printf(RESET);
+
+    return col + j;
 }
 
 void print_frame(struct Frame* fr){
@@ -147,12 +220,8 @@ void print_frame(struct Frame* fr){
 
     printf("\n");
 
-    int j = 0;
     long size = fr->ws.width * fr->ws.height * CHUNK;
-    struct Node* next = NULL;
-    int write_until = 0;
 
-    printf("%s%s", fr->bc, fr->fc);
 
     if(fr->field != NULL){
         if(fr->field->head != NULL){
@@ -161,36 +230,8 @@ void print_frame(struct Frame* fr){
     }
 
     for(int i = 0; i < fr->ws.height; i++){
-        j = 0;
-        do{
-            next = find_closest_field(fr, i, j);
-
-            if(next == NULL){
-                write_until = fr->ws.width;
-            }else{
-                write_until = next->fr->col;
-            }
-
-            for(; j < write_until * CHUNK; j++){
-                printf("%c", fr->buf[i * fr->ws.width * CHUNK + j ]);
-            }
-
-            if(next != NULL){
-                if(next->fr->is_focus){
-                    printf("%s%s", BACK_CYAN, FORE_YELLOW);
-                }else{
-                    printf("%s%s", next->fr->bc, next->fr->fc);
-                }
-                for(int k = 0; k < next->fr->ws.width * CHUNK; k++, j++){
-                    printf("%c", next->fr->buf[((i - next->fr->row)*next->fr->ws.width * CHUNK  + k)]);
-                }
-                printf(RESET);
-                printf("%s%s", fr->bc, fr->fc);
-            }
-        }while(j < fr->ws.width * CHUNK);
+        print_row(fr, i, 0);
     }
-    printf("%s", RESET);
-
 
 }
 
@@ -203,7 +244,7 @@ void render_frame_to_frame(struct Frame* dest, struct Frame* fr, int lvl){
     }
 
     //TODO: check for lvl
-    
+
 
     int i_diff = (dest->ws.height - fr->ws.height) / 2;
     i_diff = i_diff - (i_diff % CHUNK);
@@ -218,4 +259,47 @@ void render_frame_to_frame(struct Frame* dest, struct Frame* fr, int lvl){
             *(dest->buf + (rows_skip + i*dest->ws.width*CHUNK) + (cols_skip + j)) = *(fr->buf + (i * fr->ws.width * CHUNK) + (j));
         }
     }
+}
+
+
+void push_frame(struct Frame* dest, struct Frame* fr){
+    if(dest == NULL || fr == NULL){ return; }
+    if(!fr->row || !fr->col){
+        fr->row = (dest->ws.height - fr->ws.height) / 2;
+        fr->row = fr->row - fr->row % CHUNK;
+        fr->col = (dest->ws.width - fr->ws.width) / 2;
+        fr->col = fr->col - fr->col % CHUNK;
+    }
+
+    push(dest->field, get_node(fr, NULL, NULL));
+
+}
+
+struct WinSize get_cursor(struct Frame* fr, struct Frame* x){
+    struct WinSize ws = {0,0};
+    if(fr == NULL || x == NULL){ return ws; }
+    if(fr->field == NULL) { return ws; }
+    if(fr->field->head == NULL) { return ws; }
+
+    struct Node* nptr = fr->field->head;
+    do{
+        if(nptr->fr == x){
+            ws.height = fr->row + x->row;
+            ws.width  = fr->col + x->col;
+            return ws;
+        }else{
+            if(nptr->fr->field != NULL){
+                ws = get_cursor(nptr->fr, x);
+                if(ws.width > 0 &&  ws.height > 0){
+                    if(ws.height != nptr->fr->row && ws.width != nptr->fr->col){
+                        ws.height = ws.height + fr->row;
+                        ws.width  = ws.width  + fr->col;
+                        return ws;
+                    }
+                }
+            }
+        }
+        nptr = nptr->next;
+    }while(nptr != NULL);
+    return ws;
 }
