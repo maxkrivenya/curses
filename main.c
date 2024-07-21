@@ -14,7 +14,6 @@ int main(){
     push_frame(fr20, frame21);
     push_frame(fr20, frame22);
     
-    push_frame(console, fr20);
 
     struct Frame* fr =  new_frame(ws1, 0, 0, BACK_BLUE, FORE_CYAN, "what");
     struct Frame* frame1 = new_frame(get_winsize(1,20),   5, 10,  BACK_BLACK, FORE_YELLOW,  "Name:   ");
@@ -26,6 +25,7 @@ int main(){
     push_frame(fr, frame3);
 
     push_frame(console, fr);
+    push_frame(console, fr20);
 
     
     /*----------------input*----------------------*/
@@ -45,7 +45,7 @@ int main(){
         }while (input == '\0' || input == '\n');
         cursor++;
         if(input == '+'){
-            pop(console->field, fr);
+            pop(console->field /*, fr */);
             nptr = get_first_field(console->field);
         }
         else{

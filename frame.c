@@ -118,7 +118,7 @@ void delete_frame(struct Frame** frame){
 
 /*--------------------------------------------------------*/
 
-struct Node* find_closest_field(struct Frame* fr, int row, int cur){
+struct Node* find_closest_field(struct Frame* fr, int row, int cur, int level){
     if(fr               == NULL){return NULL;}
     if(fr->field        == NULL){return NULL;}
     if(fr->field->head  == NULL){return NULL;}
@@ -137,7 +137,7 @@ struct Node* find_closest_field(struct Frame* fr, int row, int cur){
                 ret = nptr;
             }else{
                 if(nptr->fr->field != NULL){
-                    from_list = find_closest_field(nptr->fr, row - nptr->fr->row, cur - nptr->fr->col);
+                    from_list = find_closest_field(nptr->fr, row - nptr->fr->row, cur - nptr->fr->col, level + 1);
                     if(from_list != NULL){
                         if( i > nptr->fr->col + from_list->fr->col - cur){
                             i = nptr->fr->col + from_list->fr->col - cur;
@@ -148,8 +148,9 @@ struct Node* find_closest_field(struct Frame* fr, int row, int cur){
 
             }
         }
+        if(level == 0) { break; }
         nptr = nptr->next;
-    }while(nptr != NULL);
+    }while(nptr != list->head);
 
     return ret;
 }
@@ -164,7 +165,7 @@ struct Node* get_first_field(struct List* list){
     return list->head;
 }
 
-int print_row(struct Frame* fr, int row, int col){
+int print_row(struct Frame* fr, int row, int col, int level){
     int i = row - fr->row;
     int j = 0;
     struct Node* next = NULL;
@@ -181,7 +182,7 @@ int print_row(struct Frame* fr, int row, int col){
         printf("%s%s", BACK_CYAN, FORE_YELLOW);
     }
     do{
-        next = find_closest_field(fr, i, j);
+        next = find_closest_field(fr, i, j, level);
 
         if(next == NULL){
             write_until = fr->ws.width;
@@ -194,7 +195,7 @@ int print_row(struct Frame* fr, int row, int col){
         }
 
         if(next != NULL){
-            print_row(next->fr, row - fr->row, 0);
+            print_row(next->fr, row - fr->row, 0, level + 1);
             if(next->fr->is_field){
                 j += (next->fr->ws.width + strlen(next->fr->name))* CHUNK;
             }else{
@@ -236,7 +237,7 @@ void print_frame(struct Frame* fr){
     }
 
     for(int i = 0; i < fr->ws.height; i++){
-        print_row(fr, i, 0);
+        print_row(fr, i, 0, 0);
     }
 
 }
