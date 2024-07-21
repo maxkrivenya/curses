@@ -131,9 +131,7 @@ struct Node* find_closest_field(struct Frame* fr, int row, int cur){
     struct Node* nptr = list->head;
 
     do{
-        //if field exists in current row
         if(nptr->fr->row <= row && row < (nptr->fr->row + nptr->fr->ws.height)){
-            //if starts after col
             if(nptr->fr->col > cur && i > nptr->fr->col - cur){
                 i = nptr->fr->col - cur;
                 ret = nptr;
@@ -150,7 +148,6 @@ struct Node* find_closest_field(struct Frame* fr, int row, int cur){
 
             }
         }
-        /*          29 30 |31 32 33 |34 35            */
         nptr = nptr->next;
     }while(nptr != NULL);
 
@@ -173,6 +170,11 @@ int print_row(struct Frame* fr, int row, int col){
     struct Node* next = NULL;
     int write_until = 0;
 
+    if(fr->is_field){
+        for(int k = 0; k < strlen(fr->name); k++){
+            printf("%c", fr->name[k]);
+        }
+    }
     printf("%s%s", fr->bc, fr->fc);
     if(fr->is_focus == 1){
         printf(RESET);
@@ -189,12 +191,16 @@ int print_row(struct Frame* fr, int row, int col){
 
         for(; j < write_until * CHUNK; j++){
             printf("%c", *(fr->buf + (i*fr->ws.width)*CHUNK + j));
-
         }
 
         if(next != NULL){
             print_row(next->fr, row - fr->row, 0);
-            j += next->fr->ws.width * CHUNK;
+            if(next->fr->is_field){
+                j += (next->fr->ws.width + strlen(next->fr->name))* CHUNK;
+            }else{
+                j += (next->fr->ws.width)* CHUNK;
+
+            }
             printf("%s%s", fr->bc, fr->fc);
         }else{
             printf("%s%s", fr->bc, fr->fc);
@@ -269,6 +275,10 @@ void push_frame(struct Frame* dest, struct Frame* fr){
         fr->row = fr->row - fr->row % CHUNK;
         fr->col = (dest->ws.width - fr->ws.width) / 2;
         fr->col = fr->col - fr->col % CHUNK;
+        fr->is_field = 0;
+    }
+    else{
+        fr->is_field = 1;
     }
 
     push(dest->field, get_node(fr, NULL, NULL));
@@ -285,7 +295,9 @@ struct WinSize get_cursor(struct Frame* fr, struct Frame* x){
     do{
         if(nptr->fr == x){
             ws.height = fr->row + x->row;
-            ws.width  = fr->col + x->col;
+            if(x->is_field){
+                ws.width  = fr->col + x->col + strlen(x->name);
+            }
             return ws;
         }else{
             if(nptr->fr->field != NULL){

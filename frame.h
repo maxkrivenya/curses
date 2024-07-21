@@ -7,6 +7,7 @@ struct Frame{
     int row;
     int col;
     int is_focus;
+    int is_field;
     const char* fc;
     const char* bc;
     struct List* field;

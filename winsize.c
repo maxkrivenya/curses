@@ -14,3 +14,8 @@ struct WinSize get_console_size(){
     close(fd);
     return size;
 }
+
+struct WinSize get_winsize(int rows, int cols){
+    struct WinSize ws = {rows, cols};
+    return ws;
+}

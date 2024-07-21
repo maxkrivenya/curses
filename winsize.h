@@ -7,3 +7,4 @@ struct WinSize{
 };
 
 struct WinSize get_console_size();
+struct WinSize get_winsize(int rows, int cols);

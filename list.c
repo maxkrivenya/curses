@@ -49,12 +49,45 @@ void push(struct List* list, struct Node* new_node){
     return;
 }
 
+void pop(struct List* list, struct Frame* fr){
+    if(fr == NULL) { return; }
+    if(list == NULL){ return; }
+    if(list->head == NULL){ return; }
+    struct Node* nptr = list->head;
+    do{
+        if(nptr->fr == fr){
+            if(nptr->prev == NULL && nptr->next == NULL){
+                delete_node(nptr);
+                return;
+            }
+            if(nptr->prev == NULL){
+                list->head = list->head->next;
+                list->head->prev = NULL;
+                delete_node(nptr);
+                return;
+            }
+            if(nptr->next == NULL){
+                list->tail = list->tail->prev;
+                list->tail->next = NULL;
+                delete_node(nptr);
+                return;
+            }
+            nptr->prev->next = nptr->next;
+            nptr->next->prev = nptr->prev;
+            delete_node(nptr);
+            return;
+        }
+        nptr = nptr->next;
+    }while(nptr != NULL);
+}
+
 void free_list(struct List* list){
     if(list == NULL){return;}
     struct Node * node = list->head;
     struct Node * next = NULL;
     while(node != NULL){
         next = node->next;
+        delete_frame(&node->fr);
         free(node);
         node = next;
     }
