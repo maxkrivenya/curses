@@ -3,10 +3,11 @@
 struct List* new_list(){
     struct List* list = (struct List*)calloc(1, sizeof(struct List));
     list->head = NULL;
+    list->tail = NULL;
     return list;
 }
 
-void push(struct List* list, struct Node* new_node){
+void push_field(struct List* list, struct Node* new_node){
     if(list->head == NULL){
         list->head = new_node;
         return;

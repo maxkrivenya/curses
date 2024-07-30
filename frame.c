@@ -224,6 +224,7 @@ int print_row(struct Frame* fr, int row, int col, int level){
 
 void print_frame(struct Frame* fr){
     if(fr == NULL){return;}
+    fr->ws = get_console_size();
 
     printf("\n");
 
@@ -282,7 +283,7 @@ void push_frame(struct Frame* dest, struct Frame* fr){
         fr->details.is_field = 1;
     }
 
-    push(dest->field, get_node(fr, NULL, NULL));
+    push_field(dest->field, get_node(fr, NULL, NULL));
 
 }
 

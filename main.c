@@ -2,6 +2,7 @@
 
 
 int main(){
+    struct List* framestack = new_list();
 
     struct Frame* console;
     console = new_console_full(BACK_BLUE, FORE_CYAN, "helo world!");
@@ -71,6 +72,7 @@ int main(){
     }while(input != 'q' && cursor < nptr->fr->ws.width - 1);
 
     delete_frame(&console);
+    free_list(framestack);
 
     printf(RESET);
     printf("\n\n");

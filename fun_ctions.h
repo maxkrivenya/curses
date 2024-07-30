@@ -35,7 +35,7 @@ void running_frame(struct Frame* console, struct Frame* fr){
 
     struct Node* node = get_node(fr, NULL, NULL);
 
-    push(console->field, node);
+    push_field(console->field, node);
     for(int i = 0; i < 8; i++){
         turn = i % 4;
 

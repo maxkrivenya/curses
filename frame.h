@@ -17,6 +17,7 @@ struct Frame{
     const char* fc;
     const char* bc;
     struct List* field;
+    struct List* frames;
 };
 
 /*----pretty stuff-----------*/
