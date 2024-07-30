@@ -21,21 +21,24 @@ struct Frame{
 };
 
 /*----pretty stuff-----------*/
-void corners(struct Frame* fr);
-void walls(struct Frame* fr);
-void floors(struct Frame* fr);
-void name(struct Frame* fr);
+void frame_print_corners(struct Frame* fr);
+void frame_print_walls(struct Frame* fr);
+void frame_print_floors(struct Frame* fr);
+void frame_print_name(struct Frame* fr);
 
 /*----constructors-----------*/
-struct Frame* new_frame(struct WinSize ws, int rows, int cols, const char* bc, const char* fc, char* frame_name);
-struct Frame* new_default_frame(struct WinSize ws, int rows, int cols);
-struct Frame* new_console_full(const char* bc, const char* fc, char* name);
-struct Frame* new_console_noname(const char* bc, const char* fc, char* name);
-struct Frame* new_default_console();
-void delete_frame(struct Frame** frame);
+struct Frame* frame_new(struct WinSize ws, int rows, int cols, const char* bc, const char* fc, char* frame_name);
+struct Frame* frame_new_default(struct WinSize ws, int rows, int cols);
 
-void push_frame(struct Frame* dest, struct Frame* fr);
-void print_frame(struct Frame* fr);
-struct Node* get_first_field(struct List* list);
+/*----consoles-----------*/
+struct Frame* frame_console_new(const char* bc, const char* fc, char* name);
+struct Frame* frame_console_new_no_name(const char* bc, const char* f);
+struct Frame* frame_console_new_default();
 
-struct WinSize get_cursor(struct Frame* fr, struct Frame* x);
+void frame_delete(struct Frame** frame);
+void frame_print(struct Frame* fr);
+void frame_field_push(struct Frame* dest, struct Frame* fr);
+
+struct Node* frame_get_first_field_node(struct List* list);
+
+struct WinSize cursor_get(struct Frame* fr, struct Frame* x);

@@ -10,4 +10,4 @@ struct List* new_list();
 void push_field(struct List* list, struct Node* new_node);
 void pop(struct List* list);
 
-void free_list(struct List* list);
+void list_free(struct List* list);

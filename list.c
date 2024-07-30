@@ -34,7 +34,7 @@ void pop(struct List* list){
     list->head = list->head->next;
 }
 
-void free_list(struct List* list){
+void list_free(struct List* list){
     if(list == NULL){return;}
     if(list->head == NULL){ return; }
     struct Node * node = list->head;
@@ -43,11 +43,11 @@ void free_list(struct List* list){
     struct Node * next = NULL;
     while(node != stopper){
         next = node->next;
-        delete_frame(&node->fr);
+        frame_delete(&node->fr);
         free(node);
         node = next;
     }
-    delete_frame(&stopper->fr);
+    frame_delete(&stopper->fr);
     free(stopper);
     free(list);
 }

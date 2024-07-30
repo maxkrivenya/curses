@@ -2,7 +2,7 @@
 
 /*------------------------------------------------------*/
 
-void corners(struct Frame* fr){
+void frame_print_corners(struct Frame* fr){
     if(fr->buf == NULL){return;}
     sprintf(fr->buf, TOP_LEFT);
     sprintf(fr->buf + (fr->ws.width - 1) * CHUNK, TOP_RIGHT);
@@ -10,14 +10,14 @@ void corners(struct Frame* fr){
     sprintf(fr->buf + fr->ws.width * fr->ws.height * CHUNK - CHUNK, BOTTOM_RIGHT);
 }
 
-void walls(struct Frame* fr){
+void frame_print_walls(struct Frame* fr){
     if(fr->buf == NULL){return;}
     for(int i = 1; i < fr->ws.height - 1; i++){
         sprintf(fr->buf + i * fr->ws.width * CHUNK, WALL);
         sprintf(fr->buf + (i + 1) * fr->ws.width * CHUNK  - CHUNK, WALL);
     }
 }
-void floors(struct Frame* fr){
+void frame_print_floors(struct Frame* fr){
     if(fr->buf == NULL){return;}
     for(int i = 1; i < fr->ws.width - 1; i++){
         sprintf(fr->buf + i * CHUNK, FLOOR);
@@ -25,7 +25,7 @@ void floors(struct Frame* fr){
     }
 }
 
-void name(struct Frame* fr){
+void frame_print_name(struct Frame* fr){
 
     if(fr->buf == NULL){return;}
     if(fr->name == NULL){return;}
@@ -52,7 +52,7 @@ void name(struct Frame* fr){
 
 /*------------------------------------------------------*/
 
-struct Frame* new_frame(struct WinSize ws, int rows, int cols, const char* bc, const char* fc, char* frame_name){
+struct Frame* frame_new(struct WinSize ws, int rows, int cols, const char* bc, const char* fc, char* frame_name){
     struct Frame* fr = (struct Frame*)calloc(1, sizeof(struct Frame));
     fr->ws.width = ws.width;
     fr->ws.height = ws.height;
@@ -75,42 +75,42 @@ struct Frame* new_frame(struct WinSize ws, int rows, int cols, const char* bc, c
     }
 
     if(!cols && !rows){
-        corners(fr);
-        walls(fr);
-        floors(fr);
-        name(fr);
+        frame_print_corners(fr);
+        frame_print_walls(fr);
+        frame_print_floors(fr);
+        frame_print_name(fr);
     }
 
     return fr;
 }
 
-struct Frame* new_default_frame(struct WinSize ws, int rows, int cols){
+struct Frame* frame_new_default(struct WinSize ws, int rows, int cols){
 
-    return new_frame(ws, rows, cols, BACK_BLUE, FORE_CYAN, NULL);
+    return frame_new(ws, rows, cols, BACK_BLUE, FORE_CYAN, NULL);
 }
 
-struct Frame* new_console_full(const char* bc, const char* fc, char* name){
-    return new_frame(get_console_size(), 0, 0, bc, fc, name);    
+struct Frame* frame_console_new(const char* bc, const char* fc, char* name){
+    return frame_new(get_console_size(), 0, 0, bc, fc, name);    
 }
 
-struct Frame* new_console_noname(const char* bc, const char* fc, char* name){
+struct Frame* frame_console_new_no_name(const char* bc, const char* fc){
     if(bc != NULL && fc != NULL){
-        return new_frame(get_console_size(), 0, 0, bc, fc, NULL);
+        return frame_new(get_console_size(), 0, 0, bc, fc, NULL);
     }else{
-        return new_default_frame(get_console_size(), 0, 0);
+        return frame_new_default(get_console_size(), 0, 0);
     }
 }
 
-struct Frame* new_default_console(){
-    return new_default_frame(get_console_size(), 0, 0);
+struct Frame* frame_console_new_default(){
+    return frame_new_default(get_console_size(), 0, 0);
 }
 
 
-void delete_frame(struct Frame** frame){
+void frame_delete(struct Frame** frame){
     struct Frame* fr = *frame;
     if(fr->name != NULL){ free(fr->name); }
     if(fr->buf != NULL){ free(fr->buf); }
-    free_list(fr->field);
+    list_free(fr->field);
 
 }
 
@@ -155,10 +155,10 @@ struct Node* find_closest_field(struct Frame* fr, int row, int cur, int level){
     return ret;
 }
 
-struct Node* get_first_field(struct List* list){
+struct Node* frame_get_first_field_node(struct List* list){
     if(list == NULL) {return NULL; }
     if(list->head == NULL) { return NULL; }
-    struct Node* ret = get_first_field(list->head->fr->field);
+    struct Node* ret = frame_get_first_field_node(list->head->fr->field);
     if(ret != NULL){
         return ret;
     }
@@ -222,7 +222,7 @@ int print_row(struct Frame* fr, int row, int col, int level){
     return col + j;
 }
 
-void print_frame(struct Frame* fr){
+void frame_print(struct Frame* fr){
     if(fr == NULL){return;}
     fr->ws = get_console_size();
 
@@ -270,7 +270,7 @@ void render_frame_to_frame(struct Frame* dest, struct Frame* fr, int lvl){
 }
 
 
-void push_frame(struct Frame* dest, struct Frame* fr){
+void frame_field_push(struct Frame* dest, struct Frame* fr){
     if(dest == NULL || fr == NULL){ return; }
     if(!fr->row || !fr->col){
         fr->row = (dest->ws.height - fr->ws.height) / 2;
@@ -283,11 +283,11 @@ void push_frame(struct Frame* dest, struct Frame* fr){
         fr->details.is_field = 1;
     }
 
-    push_field(dest->field, get_node(fr, NULL, NULL));
+    push_field(dest->field, node_new(fr));
 
 }
 
-struct WinSize get_cursor(struct Frame* fr, struct Frame* x){
+struct WinSize cursor_get(struct Frame* fr, struct Frame* x){
     struct WinSize ws = {0,0};
     if(fr == NULL || x == NULL){ return ws; }
     if(fr->field == NULL) { return ws; }
@@ -303,7 +303,7 @@ struct WinSize get_cursor(struct Frame* fr, struct Frame* x){
             return ws;
         }else{
             if(nptr->fr->field != NULL){
-                ws = get_cursor(nptr->fr, x);
+                ws = cursor_get(nptr->fr, x);
                 if(ws.width > 0 &&  ws.height > 0){
                     if(ws.height != nptr->fr->row && ws.width != nptr->fr->col){
                         ws.height = ws.height + fr->row;

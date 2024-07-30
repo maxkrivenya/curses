@@ -6,9 +6,7 @@ struct Node{
     struct Node* next;
 };
 
-struct Node* get_node(struct Frame* fr,
-                      struct Node* prev,
-                      struct Node* next
-);
+struct Node* node_new(struct Frame* fr);
 
-void delete_node(struct Node* node);
+void node_delete(struct Node* node);
+

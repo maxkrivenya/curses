@@ -4,7 +4,7 @@ void color_play(struct Frame* console){
     char input = '\0';
     char* flush = (char*)calloc(1000, sizeof(char));
     while(1){
-        print_frame(console);
+        frame_print(console);
 
         flush = fgets(flush, 3, stdin);
         input = '\0';
@@ -33,7 +33,7 @@ void color_play(struct Frame* console){
 void running_frame(struct Frame* console, struct Frame* fr){
     int turn = 0;
 
-    struct Node* node = get_node(fr, NULL, NULL);
+    struct Node* node = node_new(fr);
 
     push_field(console->field, node);
     for(int i = 0; i < 8; i++){
@@ -47,7 +47,7 @@ void running_frame(struct Frame* console, struct Frame* fr){
             default: break;
         }
         system("clear");
-        print_frame(console);
+        frame_print(console);
 
         sleep(1);
     }
