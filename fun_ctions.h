@@ -79,3 +79,69 @@ void play_frame(struct Frame* console, struct Frame fr, int lvl){
 }
 
 */
+
+void hacker_screen(){
+    struct WinSize ws = get_console_size();
+    char* buf = (char*)calloc(ws.width * ws.height, sizeof(char));
+
+    for(int i = 0; i < ws.width * ws.height; i++){
+        buf[i] = 'a' + rand()%26;
+    }
+    int l = 0;
+
+    printf("%s", FORE_GREEN);
+
+    do{
+        l++;
+        system("clear");
+        
+        puts(buf);
+        for(int i = ws.height * ws.width - 1; i > ws.width; i--){
+                *(buf + i) = *(buf + i - ws.width);
+        }
+        for(int i = 0; i < ws.width; i++){
+            buf[i] = 'a' + rand()%26;
+        }
+        usleep(50000);
+    }while(l < 1000);
+
+    printf(RESET);
+    free(buf);
+}
+
+
+void rain(){
+
+	struct WinSize ws = get_console_size();
+	char* buf = (char*)calloc(ws.width * ws.height, sizeof(char));
+
+	for(int i = 0; i < ws.width * ws.height; i++){
+		buf[i] = ' ';
+	}
+    int l = 0;
+
+    printf("%s", FORE_CYAN);
+	do{
+        l++;
+		system("clear");
+        
+        puts(buf);
+        for(int i = ws.height * ws.width - 1; i > ws.width; i--){
+                *(buf + i) = *(buf + i - ws.width);
+                if(rand()%2 && i > 2*ws.width){
+                    *(buf + i) = *(buf + i - ws.width - ws.width);
+                }
+		}
+		for(int i = 0; i < ws.width; i++){
+            if(rand()%35){
+                buf[i] = ' ';
+            }else{
+                buf[i] = '|';
+            }
+		}
+		usleep(50000);
+	}while(l < 100);
+
+    printf(RESET);
+	free(buf);
+}
