@@ -1,6 +1,19 @@
 #include "fun_ctions.h"
 
 
+struct Frame* frame_first;
+struct Node*  node_frame_current;
+
+
+void ERROR(char* s){
+    if(s != NULL){
+        printf("%s%sERROR:%s%s\n", BACK_BLACK, FORE_RED, s, RESET);
+    }
+    else{
+        printf("%s%sERROR:UNKNOWN%s\n", BACK_BLACK, FORE_RED, RESET);
+    }
+}
+
 int main(int argc, char* argv[]){
     if(argc > 1){
         char c = getopt(argc, argv, "rh");
@@ -11,12 +24,9 @@ int main(int argc, char* argv[]){
         }
     }
 
-
-
-    struct List* framestack = new_list();
-
     struct Frame* console;
     console = frame_console_new(BACK_BLUE, FORE_CYAN, "helo world!");
+    frame_first     = console;
 
     struct WinSize ws1 = {22, 80};
     struct WinSize ws2 = {10, 50};
@@ -27,10 +37,10 @@ int main(int argc, char* argv[]){
     frame_field_push(fr20, frame22);
     
 
-    struct Frame* fr =  frame_new(ws1, 0, 0, BACK_BLUE, FORE_CYAN, "what");
-    struct Frame* frame1 = frame_new(get_winsize(1,20),   5, 10,  BACK_BLACK, FORE_YELLOW,  "Name:   ");
+    struct Frame* fr     = frame_new(ws1,                 0,  0,   BACK_BLUE, FORE_CYAN,    "what");
+    struct Frame* frame1 = frame_new(get_winsize(1,20),   5,  10,  BACK_BLACK, FORE_YELLOW, "Name:   ");
     struct Frame* frame2 = frame_new(get_winsize(1,20),   10, 10,  BACK_BLACK, FORE_YELLOW, "Surname:");
-    struct Frame* frame3 = frame_new(get_winsize(1,20),   15, 10, BACK_BLACK, FORE_YELLOW, "Text:   ");
+    struct Frame* frame3 = frame_new(get_winsize(1,20),   15, 10,  BACK_BLACK, FORE_YELLOW, "Text:   ");
 
     frame_field_push(fr, frame1);
     frame_field_push(fr, frame2);
@@ -40,6 +50,19 @@ int main(int argc, char* argv[]){
     frame_field_push(console, fr20);
 
     
+    if(frame_first == NULL){
+        ERROR("FRAME_FIRST = NULL");
+        exit(-1);
+    }
+    if(frame_first->frames != NULL){
+        if(frame_first->frames->head != NULL){
+            node_frame_current   = frame_first->frames->head;
+        }else{
+            ERROR("bad fields!");
+        }
+    }else{
+        ERROR("no fields!");
+    }
     /*----------------input*----------------------*/
     char input = '\0';
     int cursor = 0;
@@ -52,7 +75,7 @@ int main(int argc, char* argv[]){
         frame_print(console);
         printf("\033[%d;%dH", pos.height + 1, pos.width + 1 + cursor);
         do{
-            input = getc(stdin);
+            input = getchar();
             printf("\033[%d;%dH", pos.height + 1, pos.width + 1 + cursor);
         }while (input == '\0' || input == '\n');
         cursor++;
@@ -83,7 +106,6 @@ int main(int argc, char* argv[]){
     }while(input != 'q' && cursor < nptr->fr->ws.width - 1);
 
     frame_delete(&console);
-    list_free(framestack);
 
     printf(RESET);
     printf("\n\n");
