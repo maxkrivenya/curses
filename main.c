@@ -79,7 +79,7 @@ int main(int argc, char* argv[]){
         }while (input == '\0' || input == '\n');
         cursor++;
         if(input == '+'){
-            pop(console->field /*, fr */);
+            ring_next(console->field);
             nptr = frame_get_first_field_node(console->field);
         }
         else{

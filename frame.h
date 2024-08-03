@@ -16,7 +16,7 @@ struct Frame{
     int col;
     const char* fc;
     const char* bc;
-    struct List* field;
+    struct Ring* field;
     struct List* frames;
 };
 
@@ -39,6 +39,6 @@ void frame_delete(struct Frame** frame);
 void frame_print(struct Frame* fr);
 void frame_field_push(struct Frame* dest, struct Frame* fr);
 
-struct Node* frame_get_first_field_node(struct List* list);
+struct Node* frame_get_first_field_node(struct Ring* ring);
 
 struct WinSize cursor_get(struct Frame* fr, struct Frame* x);

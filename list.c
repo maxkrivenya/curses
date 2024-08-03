@@ -1,5 +1,4 @@
 #include "list.h"
-#include <cmath>
 
 struct List* list_new(){
     struct List* list = (struct List*)calloc(1, sizeof(struct List));
@@ -109,6 +108,11 @@ void ring_free(struct Ring* ring){
     struct Node* nptr = ring->head->next;
     struct Node* next;
     struct Node* stopper = ring->head;
+    if(stopper == nptr){
+        free(nptr);
+        free(ring);
+        return;
+    }
 
     do{
         next = nptr->next;
