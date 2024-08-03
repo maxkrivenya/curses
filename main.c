@@ -49,7 +49,6 @@ int main(int argc, char* argv[]){
     frame_field_push(console, fr);
     frame_field_push(console, fr20);
 
-    
     if(frame_first == NULL){
         ERROR("FRAME_FIRST = NULL");
         exit(-1);

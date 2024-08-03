@@ -8,7 +8,8 @@ T_OBJ 	= test.o frame.o winsize.o node.o list.o
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
+all: main test
 main: $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS)
-#test: $(T_OBJ)
-#	$(CC) -o $@ $^ $(CFLAGS)
+test: $(T_OBJ)
+	$(CC) -o $@ $^ $(CFLAGS)

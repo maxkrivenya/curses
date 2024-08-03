@@ -5,6 +5,8 @@ struct Node* node_new(struct Frame* fr){
 
    if(fr == NULL){return node;}
    node->fr = fr;
+   node->prev = NULL;
+   node->next = NULL;
 
    return node;
 }

@@ -116,6 +116,20 @@ void frame_delete(struct Frame** frame){
 
 
 
+void frame_globals_update(struct Frame* parent, struct Frame* new){
+    if(new->field == NULL){
+        new->field = new_list();
+    }
+    new->details.global_col = parent->details.global_col + new->col;
+    new->details.global_row = parent->details.global_row + new->row;
+    struct Node* nptr = new->field->head;
+    while(nptr != NULL){
+        frame_globals_update(new, nptr->fr);
+        nptr = nptr->next;
+        if(nptr == new->field->head){ break; }
+    }
+}
+
 /*--------------------------------------------------------*/
 
 struct Node* find_closest_field(struct Frame* fr, int row, int cur, int level){
@@ -165,7 +179,8 @@ struct Node* frame_get_first_field_node(struct List* list){
     return list->head;
 }
 
-int print_row(struct Frame* fr, int row, int col, int level){
+int frame_print_row(struct Frame* fr, int row, int col, int level){
+    if(fr->buf == NULL){printf("NUULL\n"); return 0;}
     int i = row - fr->row;
     int j = 0;
     struct Node* next = NULL;
@@ -195,7 +210,7 @@ int print_row(struct Frame* fr, int row, int col, int level){
         }
 
         if(next != NULL){
-            print_row(next->fr, row - fr->row, 0, level + 1);
+            frame_print_row(next->fr, row - fr->row, 0, level + 1);
             if(next->fr->details.is_field){
                 j += (next->fr->ws.width + strlen(next->fr->name))* CHUNK;
             }else{
@@ -217,7 +232,7 @@ int print_row(struct Frame* fr, int row, int col, int level){
         }
 
     }while(j < fr->ws.width * CHUNK);
-            printf(RESET);
+    printf(RESET);
 
     return col + j;
 }
@@ -230,15 +245,8 @@ void frame_print(struct Frame* fr){
 
     long size = fr->ws.width * fr->ws.height * CHUNK;
 
-
-    if(fr->field != NULL){
-        if(fr->field->head != NULL){
-            //fr->field->head->fr->details.is_focus = 1;
-        }
-    }
-
     for(int i = 0; i < fr->ws.height; i++){
-        print_row(fr, i, 0, 0);
+        frame_print_row(fr, i, 0, 0);
     }
 
 }
@@ -272,6 +280,7 @@ void render_frame_to_frame(struct Frame* dest, struct Frame* fr, int lvl){
 
 void frame_field_push(struct Frame* dest, struct Frame* fr){
     if(dest == NULL || fr == NULL){ return; }
+    if(dest->field == NULL){ dest->field = new_list(); }
     if(!fr->row || !fr->col){
         fr->row = (dest->ws.height - fr->ws.height) / 2;
         fr->row = fr->row - fr->row % CHUNK;
@@ -282,6 +291,8 @@ void frame_field_push(struct Frame* dest, struct Frame* fr){
     else{
         fr->details.is_field = 1;
     }
+
+    frame_globals_update(dest, fr);
 
     push_field(dest->field, node_new(fr));
 
