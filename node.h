@@ -1,4 +1,6 @@
-#include "frame.h"
+#ifndef __node_h_
+#define __node_h_
+#include "defines.h"
 
 struct Node{
     struct Frame* fr;
@@ -9,4 +11,4 @@ struct Node{
 struct Node* node_new(struct Frame* fr);
 
 void node_delete(struct Node* node);
-
+#endif

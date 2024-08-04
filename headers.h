@@ -1,3 +1,5 @@
+#ifndef __headers_h_
+#define __headers_h_
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/ioctl.h>
@@ -7,3 +9,4 @@
 #include <unistd.h>
 #include <string.h>
 #include <ctype.h>
+#endif

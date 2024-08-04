@@ -1,4 +1,7 @@
-#include "defines.h"
+#ifndef __frame_h_
+#define __frame_h_
+#include "fun_ctions.h"
+
 
 struct Details{
     int is_focus;
@@ -46,3 +49,4 @@ void frame_field_push(struct Frame* dest, struct Frame* fr);
 struct Node* frame_get_first_field_node(struct Ring* ring);
 
 struct WinSize cursor_get(struct Frame* fr, struct Frame* x);
+#endif

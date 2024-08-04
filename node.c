@@ -1,4 +1,9 @@
+#ifndef __node_h_
 #include "node.h"
+#endif
+#ifndef __frame_h_
+#include "frame.h"
+#endif
 
 struct Node* node_new(struct Frame* fr){
    struct Node* node = (struct Node*)calloc(1, sizeof(struct Node));

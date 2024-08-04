@@ -1,4 +1,7 @@
+#ifndef __defines_h_
+#define __defines_h_
 #include "winsize.h"
+
 
 #define FORE_RED     "\033[31m"
 #define FORE_GREEN   "\033[32m"
@@ -32,3 +35,4 @@
 
 void ERROR(char* s);
 void SUCCESS(char* s);
+#endif
