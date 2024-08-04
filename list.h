@@ -19,3 +19,4 @@ void            ring_push(struct Ring* ring, struct Node* new_node);
 struct Node*    ring_pop(struct Ring* ring);
 void            ring_next(struct Ring* ring);
 void            ring_free(struct Ring* ring);
+void ring_print(struct Ring* ring);

@@ -328,3 +328,152 @@ struct WinSize cursor_get(struct Frame* fr, struct Frame* x){
     }while(nptr != NULL);
     return ws;
 }
+
+
+struct Frame* frame_new_from_file(char* src){
+    struct Frame* field = NULL;
+
+    int row = 0;
+    int col = 0;
+    int height =0;
+    int width = 0;
+    char* bc = NULL;
+    char* fc = NULL;
+    int is_field = 0;
+    int file_row = 0;
+    int have_name = 0;
+    
+    FILE* fptr = fopen(src, "r");
+    if(fptr == NULL){
+        printf("src is empty!");
+        return NULL;
+    }
+
+    struct Ring* ring = ring_new();
+
+    char* str = (char*)calloc(STRLEN_MAX, sizeof(char));
+    char* word = (char*)calloc(WORDLEN_MAX, sizeof(char));
+    int len = 0;
+    int i = 0;
+    char* name = (char*)calloc(WORDLEN_MAX, sizeof(char));
+    do{
+        fgets(str, STRLEN_MAX - 1, fptr);
+        for(i = 0; i < WORDLEN_MAX; i++){ word[i] = '\0'; }
+        len = strlen(str);
+
+        for(i = len - 1; i > 0 && str[i] != ' ' && str[i] != '='; i--);
+        i++;
+
+        for(int j = i; j < len && str[j] != '\n'; j++){
+            word[j - i] = str[j];
+        } 
+        word[WORDLEN_MAX - 1] = '\0';
+        if(str[0] != '\n' && str[0] != '\0'){
+            switch(str[0]){
+                case 'S': {
+                              if(have_name == 0){
+                                  have_name = 1;
+                                  for(int i = 0; i < strlen(word); i++){ 
+                                      name[i] = word[i]; 
+                                  }
+                                  name[strlen(word)] = '\0';
+                              }else{
+                                  FILE* ftmp = fopen("tmp.fr", "w");
+                                  do{
+                                      fputs(str, ftmp);
+                                      fgets(str, STRLEN_MAX, fptr);
+                                  }while(!feof(fptr) && str[0] != 'E');
+                                  fputs(str, ftmp);
+                                  fclose(ftmp);
+                                  field = frame_new_from_file("tmp.fr");
+                                  field->details.is_field = 1;
+                                  ring_push(ring, node_new(field));
+                              }
+                              break;
+                          }
+                case 'W': { width     = atoi(word); break; }
+                case 'H': { height    = atoi(word); break; }
+                case 'R': { row       = atoi(word); break; }
+                case 'C': { col       = atoi(word); break; }
+                case 'N':{
+                             for(int i = 0; i < strlen(word); i++){ 
+                                 name[i] = word[i]; 
+                             }
+                             name[strlen(word)] = '\0';
+                                  have_name = 1;
+                         }
+                case 'B':{
+                             switch(word[0]){
+                                 case 'R': bc = BACK_RED; break;
+                                 case 'B': {
+                                               if(word[1] == 'L'){
+                                                   if(word[2] == 'U'){
+                                                       bc = BACK_BLUE;
+                                                   }
+                                                   if (word[2] == 'A') {
+                                                       bc = BACK_BLACK;
+                                                   }
+                                               }
+                                               break;
+                                           }
+                                 case 'C': bc = BACK_CYAN; break;
+                                 case 'G': bc = BACK_GREEN; break;
+                                 case 'W': bc = BACK_WHITE; break;
+                                 case 'M': bc = BACK_MAGENTA; break;
+                                 default:break;
+                             }
+                         }
+                case 'F':{
+                             switch(word[0]){
+                                 case 'R': fc = FORE_RED; break;
+                                 case 'B': {
+                                                       fc = FORE_BLUE;
+                                                       break;
+                                           }
+                                 case 'C': fc = FORE_CYAN; break;
+                                 case 'G': fc = FORE_GREEN; break;
+                                 case 'M': fc = FORE_MAGENTA; break;
+                                 case 'Y': fc = FORE_YELLOW; break;
+                                 default:break;
+                             }
+                         }
+                default: break;
+            }
+        }
+        file_row++;
+    }while(!feof(fptr));
+    fclose(fptr);
+
+    struct Frame* new = frame_new(get_winsize(height, width), row, col, bc, fc, name);
+    new->details.global_col = new->col;
+    new->details.global_row = new->row;
+    if(new->bc != NULL){
+        new->bc = bc;
+    }else{
+        new->bc = BACK_BLUE;
+    }
+    if(fc != NULL){
+        new->fc = fc;
+    }else{
+        new->fc = FORE_CYAN;
+    }
+    new->field = ring;
+    if(ring->head != NULL){
+        if(ring->head->next == ring->head){
+            ring->head->fr->details.global_col = ring->head->fr->details.global_col + new->details.global_col;
+            ring->head->fr->details.global_row = ring->head->fr->details.global_row + new->details.global_row;
+        }else{
+            struct Node* nptr = ring->head->next;
+            do{
+                nptr->fr->details.global_col = nptr->fr->details.global_col + new->details.global_col;
+                nptr->fr->details.global_row = nptr->fr->details.global_row + new->details.global_row;
+                nptr = nptr->next;
+            }while(nptr != ring->head);
+        }
+    }
+
+    free(name);
+    free(str);
+    free(word);
+    return new;
+}

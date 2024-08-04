@@ -123,3 +123,18 @@ void ring_free(struct Ring* ring){
     free(ring);
     return;
 }
+
+void ring_print(struct Ring* ring){
+    if(ring == NULL) { return; }
+    if(ring->head == NULL){ return; }
+
+    struct Node* nptr = ring->head->next;
+    struct Node* stopper = ring->head;
+
+    do{
+        puts(nptr->fr->name);
+        nptr = nptr->next;
+    }while(nptr != stopper);
+
+    return;
+}

@@ -20,6 +20,9 @@ struct Frame{
     struct List* frames;
 };
 
+#define STRLEN_MAX 128
+#define WORDLEN_MAX 32
+
 /*----pretty stuff-----------*/
 void frame_print_corners(struct Frame* fr);
 void frame_print_walls(struct Frame* fr);
@@ -29,6 +32,7 @@ void frame_print_name(struct Frame* fr);
 /*----constructors-----------*/
 struct Frame* frame_new(struct WinSize ws, int rows, int cols, const char* bc, const char* fc, char* frame_name);
 struct Frame* frame_new_default(struct WinSize ws, int rows, int cols);
+struct Frame* frame_new_from_file(char* src);
 
 /*----consoles-----------*/
 struct Frame* frame_console_new(const char* bc, const char* fc, char* name);
