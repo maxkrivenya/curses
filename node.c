@@ -5,11 +5,11 @@
 #include "frame.h"
 #endif
 
-struct Node* node_new(struct Frame* fr){
+struct Node* node_new(void* value){
    struct Node* node = (struct Node*)calloc(1, sizeof(struct Node));
 
-   if(fr == NULL){return node;}
-   node->fr = fr;
+   if(value == NULL){return node;}
+   node->value = value;
    node->prev = NULL;
    node->next = NULL;
 
@@ -18,5 +18,7 @@ struct Node* node_new(struct Frame* fr){
 
 
 void node_delete(struct Node* node){
-    frame_delete(&node->fr);
+    if(sizeof(*(node->value)) == sizeof(struct Frame)){
+        frame_delete((struct Frame**)(&node->value));
+    }
 }

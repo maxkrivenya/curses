@@ -3,12 +3,13 @@
 #include "defines.h"
 
 struct Node{
-    struct Frame* fr;
+    //struct Frame* fr;
+    void* value;
     struct Node* prev;
     struct Node* next;
 };
 
-struct Node* node_new(struct Frame* fr);
+struct Node* node_new(void* val);
 
 void node_delete(struct Node* node);
 #endif

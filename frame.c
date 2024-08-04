@@ -125,7 +125,7 @@ void frame_globals_update(struct Frame* parent, struct Frame* new){
     new->details.global_row = parent->details.global_row + new->row;
     struct Node* nptr = new->field->head;
     while(nptr != NULL){
-        frame_globals_update(new, nptr->fr);
+        frame_globals_update(new, ((struct Frame*)(nptr->value)));
         nptr = nptr->next;
         if(nptr == new->field->head){ break; }
     }
@@ -146,16 +146,16 @@ struct Node* find_closest_field(struct Frame* fr, int row, int cur, int level){
     struct Node* nptr = ring->head;
 
     do{
-        if(nptr->fr->row <= row && row < (nptr->fr->row + nptr->fr->ws.height)){
-            if(nptr->fr->col > cur && i > nptr->fr->col - cur){
-                i = nptr->fr->col - cur;
+        if(((struct Frame*)(nptr->value))->row <= row && row < (((struct Frame*)(nptr->value))->row + ((struct Frame*)(nptr->value))->ws.height)){
+            if(((struct Frame*)(nptr->value))->col > cur && i > ((struct Frame*)(nptr->value))->col - cur){
+                i = ((struct Frame*)(nptr->value))->col - cur;
                 ret = nptr;
             }else{
-                if(nptr->fr->field != NULL){
-                    from_ring = find_closest_field(nptr->fr, row - nptr->fr->row, cur - nptr->fr->col, level + 1);
+                if(((struct Frame*)(nptr->value))->field != NULL){
+                    from_ring = find_closest_field(((struct Frame*)(nptr->value)), row - ((struct Frame*)(nptr->value))->row, cur - ((struct Frame*)(nptr->value))->col, level + 1);
                     if(from_ring != NULL){
-                        if( i > nptr->fr->col + from_ring->fr->col - cur){
-                            i = nptr->fr->col + from_ring->fr->col - cur;
+                        if( i > ((struct Frame*)(nptr->value))->col + ((struct Frame*)(from_ring->value))->col - cur){
+                            i = ((struct Frame*)(nptr->value))->col + ((struct Frame*)(from_ring->value))->col - cur;
                             ret = from_ring;
                         }
                     }
@@ -173,7 +173,7 @@ struct Node* find_closest_field(struct Frame* fr, int row, int cur, int level){
 struct Node* frame_get_first_field_node(struct Ring* ring){
     if(ring == NULL) {return NULL; }
     if(ring->head == NULL) { return NULL; }
-    struct Node* ret = frame_get_first_field_node(ring->head->fr->field);
+    struct Node* ret = frame_get_first_field_node(((struct Frame*)(ring->head->value))->field);
     if(ret != NULL){
         return ret;
     }
@@ -203,7 +203,7 @@ int frame_print_row(struct Frame* fr, int row, int col, int level){
         if(next == NULL){
             write_until = fr->ws.width;
         }else{
-            write_until = next->fr->col;
+            write_until = ((struct Frame*)(next->value))->col;
         }
 
         for(; j < write_until * CHUNK; j++){
@@ -211,11 +211,11 @@ int frame_print_row(struct Frame* fr, int row, int col, int level){
         }
 
         if(next != NULL){
-            frame_print_row(next->fr, row - fr->row, 0, level + 1);
-            if(next->fr->details.is_field){
-                j += (next->fr->ws.width + strlen(next->fr->name))* CHUNK;
+            frame_print_row(((struct Frame*)(next->value)), row - fr->row, 0, level + 1);
+            if(((struct Frame*)(next->value))->details.is_field){
+                j += (((struct Frame*)(next->value))->ws.width + strlen(((struct Frame*)(next->value))->name))* CHUNK;
             }else{
-                j += (next->fr->ws.width)* CHUNK;
+                j += (((struct Frame*)(next->value))->ws.width)* CHUNK;
 
             }
             printf("%s%s", fr->bc, fr->fc);
@@ -307,17 +307,17 @@ struct WinSize cursor_get(struct Frame* fr, struct Frame* x){
 
     struct Node* nptr = fr->field->head;
     do{
-        if(nptr->fr == x){
+        if(((struct Frame*)(nptr->value)) == x){
             ws.height = fr->row + x->row;
             if(x->details.is_field){
                 ws.width  = fr->col + x->col + strlen(x->name);
             }
             return ws;
         }else{
-            if(nptr->fr->field != NULL){
-                ws = cursor_get(nptr->fr, x);
+            if(((struct Frame*)(nptr->value))->field != NULL){
+                ws = cursor_get(((struct Frame*)(nptr->value)), x);
                 if(ws.width > 0 &&  ws.height > 0){
-                    if(ws.height != nptr->fr->row && ws.width != nptr->fr->col){
+                    if(ws.height != ((struct Frame*)(nptr->value))->row && ws.width != ((struct Frame*)(nptr->value))->col){
                         ws.height = ws.height + fr->row;
                         ws.width  = ws.width  + fr->col;
                         return ws;
@@ -463,13 +463,13 @@ struct Frame* frame_new_from_file(char* src){
     new->field = ring;
     if(ring->head != NULL){
         if(ring->head->next == ring->head){
-            ring->head->fr->details.global_col = ring->head->fr->details.global_col + new->details.global_col;
-            ring->head->fr->details.global_row = ring->head->fr->details.global_row + new->details.global_row;
+            ((struct Frame*)(ring->head->value))->details.global_col = ((struct Frame*)(ring->head->value))->details.global_col + new->details.global_col;
+            ((struct Frame*)(ring->head->value))->details.global_row = ((struct Frame*)(ring->head->value))->details.global_row + new->details.global_row;
         }else{
             struct Node* nptr = ring->head->next;
             do{
-                nptr->fr->details.global_col = nptr->fr->details.global_col + new->details.global_col;
-                nptr->fr->details.global_row = nptr->fr->details.global_row + new->details.global_row;
+                ((struct Frame*)(nptr->value))->details.global_col = ((struct Frame*)(nptr->value))->details.global_col + new->details.global_col;
+                ((struct Frame*)(nptr->value))->details.global_row = ((struct Frame*)(nptr->value))->details.global_row + new->details.global_row;
                 nptr = nptr->next;
             }while(nptr != ring->head);
         }

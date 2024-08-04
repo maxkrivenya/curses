@@ -1,4 +1,5 @@
 #include "frame.h"
+#include <stdio.h>
 
 
 struct Frame* frame_first;
@@ -44,13 +45,15 @@ int main(int argc, char* argv[]){
     struct Node* nptr = frame_get_first_field_node(console->field);
     struct WinSize pos = {0, 0};
 
+    FILE* fptr = fopen("out", "w");
     do{
-        pos = cursor_get(console, nptr->fr);
-        nptr->fr->details.is_focus = 1;
+        pos = cursor_get(console, ((struct Frame*)(nptr->value)));
+        ((struct Frame*)(nptr->value))->details.is_focus = 1;
         frame_print(console);
         printf("\033[%d;%dH", pos.height + 1, pos.width + 1 + cursor);
         do{
             input = getchar();
+            fprintf(fptr, "%c:%d\n", input, input);
             printf("\033[%d;%dH", pos.height + 1, pos.width + 1 + cursor);
         }while (input == '\0' || input == '\n');
         cursor++;
@@ -60,12 +63,12 @@ int main(int argc, char* argv[]){
         }
         else{
             if(input != '\t'){
-                *(nptr->fr->buf + cursor*CHUNK) = input;
+                *(((struct Frame*)(nptr->value))->buf + cursor*CHUNK) = input;
             }
             else{
                 cursor = 0;
                 input = '\0';
-                nptr->fr->details.is_focus = 0;
+                ((struct Frame*)(nptr->value))->details.is_focus = 0;
                 if(nptr->next != NULL){
                     nptr = nptr->next;
                 }else{
@@ -73,12 +76,13 @@ int main(int argc, char* argv[]){
                         nptr = nptr->prev;
                     }while(nptr->prev != NULL);
                 }
-                nptr->fr->details.is_focus = 1;
-                pos = cursor_get(console, nptr->fr);
+                ((struct Frame*)(nptr->value))->details.is_focus = 1;
+                pos = cursor_get(console, ((struct Frame*)(nptr->value)));
                 printf("\033[%d;%dH", pos.height + 1, pos.width + 1 + cursor);
             }
         }
-    }while(input != 'q' && cursor < nptr->fr->ws.width - 1);
+    }while(input != 'q' && cursor < ((struct Frame*)(nptr->value))->ws.width - 1);
+    fclose(fptr);
 
     frame_delete(&console);
 
