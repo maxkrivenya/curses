@@ -30,3 +30,5 @@
 #define CROSS "┼"
 #define CHUNK 4
 
+void ERROR(char* s);
+void SUCCESS(char* s);

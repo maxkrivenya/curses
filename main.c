@@ -5,15 +5,6 @@ struct Frame* frame_first;
 struct Node*  node_frame_current;
 
 
-void ERROR(char* s){
-    if(s != NULL){
-        printf("%s%sERROR:%s%s\n", BACK_BLACK, FORE_RED, s, RESET);
-    }
-    else{
-        printf("%s%sERROR:UNKNOWN%s\n", BACK_BLACK, FORE_RED, RESET);
-    }
-}
-
 int main(int argc, char* argv[]){
     if(argc > 1){
         char c = getopt(argc, argv, "rh");

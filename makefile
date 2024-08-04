@@ -1,8 +1,8 @@
 CC=gcc
 CFLAGS=-I.
-DEPS 	= frame.h winsize.h node.h list.h
-OBJ 	= main.o frame.o winsize.o node.o list.o
-T_OBJ 	= test.o frame.o winsize.o node.o list.o
+DEPS 	= frame.h winsize.h node.h list.h defines.h
+OBJ 	= main.o frame.o winsize.o node.o list.o defines.o
+T_OBJ 	= test.o frame.o winsize.o node.o list.o defines.o
 
 
 %.o: %.c $(DEPS)

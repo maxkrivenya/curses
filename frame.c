@@ -422,6 +422,7 @@ struct Frame* frame_new_from_file(char* src){
                                  case 'M': bc = BACK_MAGENTA; break;
                                  default:break;
                              }
+                             break;
                          }
                 case 'F':{
                              switch(word[0]){
@@ -436,6 +437,7 @@ struct Frame* frame_new_from_file(char* src){
                                  case 'Y': fc = FORE_YELLOW; break;
                                  default:break;
                              }
+                             break;
                          }
                 default: break;
             }
