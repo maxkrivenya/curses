@@ -28,27 +28,8 @@ int main(int argc, char* argv[]){
     console = frame_console_new(BACK_BLUE, FORE_CYAN, "helo world!");
     frame_first     = console;
 
-    struct Frame* fr20 = frame_new_from_file("./auth.fr");
-    /*
-    struct Frame* fr20 =  frame_new(ws2, 0, 0, BACK_BLUE, FORE_CYAN, "Auth");
-    struct Frame* frame21 = frame_new(get_winsize(1,15),   3, 10,  BACK_BLACK, FORE_YELLOW, "Login:   ");
-    struct Frame* frame22 = frame_new(get_winsize(1,15),   7, 10,  BACK_BLACK, FORE_YELLOW, "Password:");
-    frame_field_push(fr20, frame21);
-    frame_field_push(fr20, frame22);
-    */
-
+    struct Frame* fr20      = frame_new_from_file("./auth.fr");
     struct Frame* fr        = frame_new_from_file("./fio.fr");
-    /*
-    //replaced by the row above
-    struct Frame* fr     = frame_new(ws1,                 0,  0,   BACK_BLUE, FORE_CYAN,    "what");
-    struct Frame* frame1 = frame_new(get_winsize(1,20),   5,  10,  BACK_BLACK, FORE_YELLOW, "Name:   ");
-    struct Frame* frame2 = frame_new(get_winsize(1,20),   10, 10,  BACK_BLACK, FORE_YELLOW, "Surname:");
-    struct Frame* frame3 = frame_new(get_winsize(1,20),   15, 10,  BACK_BLACK, FORE_YELLOW, "Text:   ");
-
-    frame_field_push(fr, frame1);
-    frame_field_push(fr, frame2);
-    frame_field_push(fr, frame3);
-    */
 
     frame_field_push(console, fr);
     frame_field_push(console, fr20);
