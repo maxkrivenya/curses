@@ -10,25 +10,25 @@ int frame_assertEqual(struct Frame* expected, struct Frame* result){
     int test_passed = 1;
     int same = 1;
 
-    if(expected->field == NULL){
-        if(result->field != NULL){
+    if(expected->fields == NULL){
+        if(result->fields != NULL){
             ERROR("FIELDS ISNT NULL");
             test_passed = 0;
         }
     }else{
-        if(result->field == NULL){
+        if(result->fields == NULL){
             ERROR("FIELDS IS NULL");
             test_passed = 0;
             
         }else{
-            if(expected->field->head == NULL){
-                if(result->field->head != NULL){
+            if(expected->fields->head == NULL){
+                if(result->fields->head != NULL){
                     ERROR("FIELDS ISNT EMPTY");
                     test_passed = 0;
                 }
             }else{
-                struct Node* stopper1 = expected->field->head;
-                struct Node* stopper2 = result->field->head;
+                struct Node* stopper1 = expected->fields->head;
+                struct Node* stopper2 = result->fields->head;
                 struct Node* n1 = stopper1;
                 struct Node* n2 = stopper2;
                 do{
@@ -213,12 +213,12 @@ void frame_test_showcase_single(struct Frame* fr, int level){
         printf("buflen=NULL\n");
     }
 
-    if(fr->field == NULL){
+    if(fr->fields == NULL){
         printf("LIST IS NULL\n");
         return;
     }
-    if(fr->field->head == NULL){return;}
-    struct Node* nptr = fr->field->head;
+    if(fr->fields->head == NULL){return;}
+    struct Node* nptr = fr->fields->head;
     struct Node* stopper = NULL;
 
     if(nptr != NULL){
@@ -247,7 +247,7 @@ int main(){
     struct Frame* console = frame_console_new_default();
     struct Frame* fr        = frame_new_from_file("./fio.fr");
     
-    frame_field_push(console, fr);
+    frame_push_field(console, fr);
     frame_print(console);
     printf("\n");
     
@@ -261,14 +261,14 @@ int main(){
     struct Frame* frame1 = frame_new(get_winsize(1,20),   5,  10,  BACK_BLACK, FORE_YELLOW, "Name:");
     struct Frame* frame2 = frame_new(get_winsize(1,20),   10, 7,  BACK_BLACK, FORE_YELLOW, "Surname:");
     struct Frame* frame3 = frame_new(get_winsize(1,20),   15, 10,  BACK_BLACK, FORE_YELLOW, "Text:");
-    frame_field_push(fr_exp, frame1);
-    frame_field_push(fr_exp, frame2);
-    frame_field_push(fr_exp, frame3);
+    frame_push_field(fr_exp, frame1);
+    frame_push_field(fr_exp, frame2);
+    frame_push_field(fr_exp, frame3);
 
     struct Frame* fr_res = frame_new_from_file("./frames/fio.fr");
 
-//    ring_print(fr_exp->field);
-//    ring_print(fr_res->field);
+//    ring_print(fr_exp->fields);
+//    ring_print(fr_res->fields);
     frame_assertEqual(fr_exp, fr_res);
     frame_test_showcase(fr_exp);
     ERROR("============================");

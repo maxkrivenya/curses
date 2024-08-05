@@ -1,3 +1,4 @@
+clear
 rm main
 rm test
 make

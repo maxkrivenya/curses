@@ -1,9 +1,6 @@
 #include "./headers/frame.h"
 
-
-struct Frame* frame_first;
-struct Node*  node_frame_current;
-
+struct List* framestack;
 
 int main(int argc, char* argv[]){
     if(argc > 1){
@@ -15,36 +12,22 @@ int main(int argc, char* argv[]){
         }
     }
 
+    list_push_tail(framestack, node_new(frame_console_new_default()));
     struct Frame* console;
     console = frame_console_new(BACK_BLUE, FORE_CYAN, "helo world!");
-    frame_first     = console;
 
     struct Frame* fr20      = frame_new_from_file("./frames/auth.fr");
     struct Frame* fr        = frame_new_from_file("./frames/fio.fr");
 
-    frame_field_push(console, fr);
-    frame_field_push(console, fr20);
+    frame_push_field(console, fr);
+    frame_push_field(console, fr20);
 
-    if(frame_first == NULL){
-        ERROR("FRAME_FIRST = NULL");
-        exit(-1);
-    }
-    if(frame_first->frames != NULL){
-        if(frame_first->frames->head != NULL){
-            node_frame_current   = frame_first->frames->head;
-        }else{
-            ERROR("bad fields!");
-        }
-    }else{
-        ERROR("no fields!");
-    }
     /*----------------input*----------------------*/
     char input = '\0';
     int cursor = 0;
-    struct Node* nptr = frame_get_first_field_node(console->field);
+    struct Node* nptr = frame_get_first_field_node(console->fields);
     struct WinSize pos = {0, 0};
 
-    FILE* fptr = fopen("out", "w");
     do{
         pos = cursor_get(console, ((struct Frame*)(nptr->value)));
         ((struct Frame*)(nptr->value))->details.is_focus = 1;
@@ -52,13 +35,12 @@ int main(int argc, char* argv[]){
         printf("\033[%d;%dH", pos.height + 1, pos.width + 1 + cursor);
         do{
             input = getchar();
-            fprintf(fptr, "%c:%d\n", input, input);
             printf("\033[%d;%dH", pos.height + 1, pos.width + 1 + cursor);
         }while (input == '\0' || input == '\n');
         cursor++;
         if(input == '+'){
-            ring_next(console->field);
-            nptr = frame_get_first_field_node(console->field);
+            ring_next(console->fields);
+            nptr = frame_get_first_field_node(console->fields);
         }
         else{
             if(input != '\t'){
@@ -81,8 +63,8 @@ int main(int argc, char* argv[]){
             }
         }
     }while(input != 'q' && cursor < ((struct Frame*)(nptr->value))->ws.width - 1);
-    fclose(fptr);
 
+    list_free(framestack);
     frame_delete(&console);
 
     printf(RESET);

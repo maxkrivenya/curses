@@ -19,8 +19,8 @@ struct Frame{
     int col;
     const char* fc;
     const char* bc;
-    struct Ring* field;
-    struct List* frames;
+    struct Ring* fields;
+    struct List* events;
 };
 
 #define STRLEN_MAX 128
@@ -44,7 +44,7 @@ struct Frame* frame_console_new_default();
 
 void frame_delete(struct Frame** frame);
 void frame_print(struct Frame* fr);
-void frame_field_push(struct Frame* dest, struct Frame* fr);
+void frame_push_field(struct Frame* dest, struct Frame* fr);
 
 struct Node* frame_get_first_field_node(struct Ring* ring);
 

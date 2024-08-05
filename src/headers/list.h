@@ -8,7 +8,7 @@ struct List{
 };
 
 struct List*    list_new();
-void            list_push(struct List* list, struct Node* new_node);
+void            list_push_tail(struct List* list, struct Node* new_node);
 struct Node*    list_pop(struct List* list);
 void            list_free(struct List* list);
 
