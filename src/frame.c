@@ -27,7 +27,6 @@ void frame_print_floors(struct Frame* fr){
 }
 
 void frame_print_name(struct Frame* fr){
-
     if(fr->buf == NULL){return;}
     if(fr->name == NULL){return;}
     int offset = ( fr->ws.width - strlen(fr->name) - 2) / 2 ;
@@ -38,7 +37,7 @@ void frame_print_name(struct Frame* fr){
     for(int i = 1; i < CHUNK; i++){
         fr->buf[offset - CHUNK + i] = '\0';
     }
-    for(int i = 0; i < strlen(fr->name); i++){
+    for(int i = 0; i < strlen(fr->name) && i < WORDLEN_MAX; i++){
         fr->buf[offset + i*CHUNK] = fr->name[i];
         for(int j = 1; j < CHUNK; j++){
             fr->buf[offset + i*CHUNK + j] = '\0';
@@ -53,7 +52,7 @@ void frame_print_name(struct Frame* fr){
 
 /*------------------------------------------------------*/
 
-struct Frame* frame_new(struct WinSize ws, int rows, int cols, const char* bc, const char* fc, char* frame_name){
+struct Frame* frame_new(char* filepath, struct WinSize ws, int rows, int cols, const char* bc, const char* fc, char* frame_name){
     struct Frame* fr = (struct Frame*)calloc(1, sizeof(struct Frame));
     fr->ws.width = ws.width;
     fr->ws.height = ws.height;
@@ -63,10 +62,15 @@ struct Frame* frame_new(struct WinSize ws, int rows, int cols, const char* bc, c
     fr->row = rows;
     fr->buf = (char*)calloc(fr->ws.height * fr->ws.width, CHUNK);
     fr->fields = ring_new();
+    fr->filepath = (char*)calloc(strlen(filepath), sizeof(char));
+
+    for(int i = 0; i < strlen(filepath); i++){
+        fr->filepath[i] = filepath[i];
+    }
 
     if(frame_name != NULL){
         fr->name = (char*)calloc(strlen(frame_name), sizeof(char));
-        for(int i = 0; i < strlen(frame_name); i++){
+        for(int i = 0; i < strlen(frame_name) && i < WORDLEN_MAX; i++){
             fr->name[i] = frame_name[i];
         }
     }
@@ -85,32 +89,33 @@ struct Frame* frame_new(struct WinSize ws, int rows, int cols, const char* bc, c
     return fr;
 }
 
-struct Frame* frame_new_default(struct WinSize ws, int rows, int cols){
+struct Frame* frame_new_default(char* id, struct WinSize ws, int rows, int cols){
 
-    return frame_new(ws, rows, cols, BACK_BLUE, FORE_CYAN, NULL);
+    return frame_new(id, ws, rows, cols, BACK_BLUE, FORE_CYAN, NULL);
 }
 
 struct Frame* frame_console_new(const char* bc, const char* fc, char* name){
-    return frame_new(get_console_size(), 0, 0, bc, fc, name);    
+    return frame_new("console\0", get_console_size(), 0, 0, bc, fc, name);    
 }
 
 struct Frame* frame_console_new_no_name(const char* bc, const char* fc){
     if(bc != NULL && fc != NULL){
-        return frame_new(get_console_size(), 0, 0, bc, fc, NULL);
+        return frame_new("console\0", get_console_size(), 0, 0, bc, fc, NULL);
     }else{
-        return frame_new_default(get_console_size(), 0, 0);
+        return frame_new_default("console\0", get_console_size(), 0, 0);
     }
 }
 
 struct Frame* frame_console_new_default(){
-    return frame_new_default(get_console_size(), 0, 0);
+    return frame_new_default("console\0", get_console_size(), 0, 0);
 }
 
 
 void frame_delete(struct Frame** frame){
     struct Frame* fr = *frame;
-    if(fr->name != NULL){ free(fr->name); }
     if(fr->buf != NULL){ free(fr->buf); }
+    if(fr->name != NULL){ free(fr->name); }
+    if(fr->filepath != NULL){ free(fr->filepath); }
     ring_free(fr->fields);
 
 }
@@ -132,6 +137,16 @@ void frame_globals_update(struct Frame* parent, struct Frame* new){
 }
 
 /*--------------------------------------------------------*/
+
+void frame_clear(struct Frame* fr){
+    for(int i = 0; i < fr->ws.width * fr->ws.height; i++){
+        fr->buf[i * CHUNK] = ' ';
+    }
+    frame_print_corners(fr);
+    frame_print_walls(fr);
+    frame_print_floors(fr);
+    frame_print_name(fr);
+}
 
 struct Node* find_closest_field(struct Frame* fr, int row, int cur, int level){
     if(fr               == NULL){return NULL;}
@@ -278,6 +293,19 @@ void render_frame_to_frame(struct Frame* dest, struct Frame* fr, int lvl){
     }
 }
 
+struct Action* frame_event_taken(struct Frame* fr, char trigger){
+    if(fr == NULL){return NULL;}
+    if(fr->events == NULL){ return NULL; }
+    if(fr->events->head == NULL){ return NULL; }
+    struct Node* nptr = fr->events->head;
+    while(nptr != NULL){
+        if(((struct Action*)nptr->value)->trigger == trigger){
+            return nptr->value;
+        }
+        nptr = nptr->next;
+    }
+    return NULL;
+}
 
 void frame_push_field(struct Frame* dest, struct Frame* fr){
     if(dest == NULL || fr == NULL){ return; }
@@ -297,6 +325,18 @@ void frame_push_field(struct Frame* dest, struct Frame* fr){
 
     ring_push(dest->fields, node_new(fr));
 
+}
+
+void frame_push_event(struct Frame* dest, struct Action* action){
+    if(dest == NULL || action == NULL){ return; }
+    if(dest->events == NULL){ dest->events = list_new(); }
+    struct Action* nptr = frame_event_taken(dest, action->trigger);
+    if(nptr != NULL){
+        ERROR("EVENT ALREADY TAKEN");
+        printf("%c:%s\n", action->trigger, action->frame_id);
+        return;
+    }
+    list_push_tail(dest->events, node_new(action));
 }
 
 struct WinSize cursor_get(struct Frame* fr, struct Frame* x){
@@ -342,8 +382,8 @@ struct Frame* frame_new_from_file(char* src){
     char* fc = NULL;
     int is_field = 0;
     int file_row = 0;
-    int have_name = 0;
-    
+    char* name = (char*)calloc(WORDLEN_MAX, sizeof(char));
+
     FILE* fptr = fopen(src, "r");
     if(fptr == NULL){
         printf("src is empty!");
@@ -354,100 +394,102 @@ struct Frame* frame_new_from_file(char* src){
 
     char* str = (char*)calloc(STRLEN_MAX, sizeof(char));
     char* word = (char*)calloc(WORDLEN_MAX, sizeof(char));
+    if(str == NULL){return NULL;}
+    if(word == NULL){return NULL;}
+    if(name == NULL){return NULL;}
     int len = 0;
     int i = 0;
-    char* name = (char*)calloc(WORDLEN_MAX, sizeof(char));
     do{
-        fgets(str, STRLEN_MAX - 1, fptr);
-        for(i = 0; i < WORDLEN_MAX; i++){ word[i] = '\0'; }
-        len = strlen(str);
+        if(fgets(str, STRLEN_MAX - 1, fptr) != NULL){
+            for(i = 0; i < WORDLEN_MAX; i++){ word[i] = '\0'; }
+            len = strlen(str);
 
-        for(i = len - 1; i > 0 && str[i] != ' ' && str[i] != '='; i--);
-        i++;
+            for(i = len - 1; i > 0 && str[i] != ' ' && str[i] != '='; i--);
+            i++;
 
-        for(int j = i; j < len && str[j] != '\n'; j++){
-            word[j - i] = str[j];
-        } 
-        word[WORDLEN_MAX - 1] = '\0';
-        if(str[0] != '\n' && str[0] != '\0'){
-            switch(str[0]){
-                case 'S': {
-                              if(have_name == 0){
-                                  have_name = 1;
-                                  for(int i = 0; i < strlen(word); i++){ 
-                                      name[i] = word[i]; 
+            for(int j = i; j < len && str[j] != '\n'; j++){
+                word[j - i] = str[j];
+            } 
+            word[WORDLEN_MAX - 1] = '\0';
+            if(str[0] != '\n' && str[0] != '\0'){
+                switch(str[0]){
+                    case 'S': {
+                                  if(file_row > 1){
+                                      FILE* ftmp = fopen("tmp.fr", "w");
+                                      if(ftmp != NULL){ 
+                                          do{
+                                              fputs(str, ftmp);
+                                              if(fgets(str, STRLEN_MAX, fptr) == NULL){
+                                                  break;
+                                              }
+                                          }while(!feof(fptr) && str[0] != 'E');
+                                          fputs(str, ftmp);
+                                          fclose(ftmp);
+                                          field = frame_new_from_file("tmp.fr");
+                                          field->details.is_field = 1;
+                                          ring_push(ring, node_new(field));
+                                      }
                                   }
-                                  name[strlen(word)] = '\0';
-                              }else{
-                                  FILE* ftmp = fopen("tmp.fr", "w");
-                                  do{
-                                      fputs(str, ftmp);
-                                      fgets(str, STRLEN_MAX, fptr);
-                                  }while(!feof(fptr) && str[0] != 'E');
-                                  fputs(str, ftmp);
-                                  fclose(ftmp);
-                                  field = frame_new_from_file("tmp.fr");
-                                  field->details.is_field = 1;
-                                  ring_push(ring, node_new(field));
                               }
                               break;
-                          }
-                case 'W': { width     = atoi(word); break; }
-                case 'H': { height    = atoi(word); break; }
-                case 'R': { row       = atoi(word); break; }
-                case 'C': { col       = atoi(word); break; }
-                case 'N':{
-                             for(int i = 0; i < strlen(word); i++){ 
-                                 name[i] = word[i]; 
+                    case 'W': { width     = atoi(word); break; }
+                    case 'H': { height    = atoi(word); break; }
+                    case 'R': { row       = atoi(word); break; }
+                    case 'C': { col       = atoi(word); break; }
+                    case 'N':{
+                                 for(int i = 0; i < strlen(word) && i < WORDLEN_MAX; i++){ 
+                                     name[i] = word[i]; 
+                                 }
+                                 name[strlen(word)] = '\0';
                              }
-                             name[strlen(word)] = '\0';
-                                  have_name = 1;
-                         }
-                case 'B':{
-                             switch(word[0]){
-                                 case 'R': bc = BACK_RED; break;
-                                 case 'B': {
-                                               if(word[1] == 'L'){
-                                                   if(word[2] == 'U'){
-                                                       bc = BACK_BLUE;
+                    case 'B':{
+                                 switch(word[0]){
+                                     case 'R': bc = BACK_RED; break;
+                                     case 'B': {
+                                                   if(word[1] == 'L'){
+                                                       if(word[2] == 'U'){
+                                                           bc = BACK_BLUE;
+                                                       }
+                                                       if (word[2] == 'A') {
+                                                           bc = BACK_BLACK;
+                                                       }
                                                    }
-                                                   if (word[2] == 'A') {
-                                                       bc = BACK_BLACK;
-                                                   }
+                                                   break;
                                                }
-                                               break;
-                                           }
-                                 case 'C': bc = BACK_CYAN; break;
-                                 case 'G': bc = BACK_GREEN; break;
-                                 case 'W': bc = BACK_WHITE; break;
-                                 case 'M': bc = BACK_MAGENTA; break;
-                                 default:break;
+                                     case 'C': bc = BACK_CYAN; break;
+                                     case 'G': bc = BACK_GREEN; break;
+                                     case 'W': bc = BACK_WHITE; break;
+                                     case 'M': bc = BACK_MAGENTA; break;
+                                     default:break;
+                                 }
+                                 break;
                              }
-                             break;
-                         }
-                case 'F':{
-                             switch(word[0]){
-                                 case 'R': fc = FORE_RED; break;
-                                 case 'B': {
-                                                       fc = FORE_BLUE;
-                                                       break;
-                                           }
-                                 case 'C': fc = FORE_CYAN; break;
-                                 case 'G': fc = FORE_GREEN; break;
-                                 case 'M': fc = FORE_MAGENTA; break;
-                                 case 'Y': fc = FORE_YELLOW; break;
-                                 default:break;
+                    case 'F':{
+                                 switch(word[0]){
+                                     case 'R': fc = FORE_RED; break;
+                                     case 'B': {
+                                                   fc = FORE_BLUE;
+                                                   break;
+                                               }
+                                     case 'C': fc = FORE_CYAN; break;
+                                     case 'G': fc = FORE_GREEN; break;
+                                     case 'M': fc = FORE_MAGENTA; break;
+                                     case 'Y': fc = FORE_YELLOW; break;
+                                     default:break;
+                                 }
+                                 break;
                              }
-                             break;
-                         }
-                default: break;
+                    default: break;
+                }
             }
         }
         file_row++;
     }while(!feof(fptr));
-    fclose(fptr);
+    if(fptr != NULL){
+        fclose(fptr);
+    }
 
-    struct Frame* new = frame_new(get_winsize(height, width), row, col, bc, fc, name);
+    struct Frame* new = frame_new(src, get_winsize(height, width), row, col, bc, fc, name);
     new->details.global_col = new->col;
     new->details.global_row = new->row;
     if(new->bc != NULL){
@@ -478,5 +520,5 @@ struct Frame* frame_new_from_file(char* src){
     free(name);
     free(str);
     free(word);
-    return new;
+return new;
 }

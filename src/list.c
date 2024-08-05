@@ -8,15 +8,17 @@ struct List* list_new(){
 }
 
 void list_push_tail(struct List* list, struct Node* new_node){
-    if(list == NULL){ return; }
+    if(list == NULL){ list = list_new(); }
     if(list->head == NULL){
         list->head = new_node;
         list->tail = new_node;
+        new_node->prev = NULL;
+        new_node->next = NULL;
         return;
     }
-    new_node->prev      = list->tail->prev;
-    new_node->next      = list->tail;
-    list->tail->prev    = new_node;
+    new_node->prev      = list->tail;
+    new_node->next      = NULL;
+    list->tail->next    = new_node;
     list->tail          = new_node;
     return;
 }

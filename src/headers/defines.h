@@ -32,7 +32,11 @@
 #define TOP_SPLIT "┬"
 #define CROSS "┼"
 #define CHUNK 4
+#define WORDLEN_MAX 32
+#define STRLEN_MAX 128
 
+void ERROR_LEVEL(char* s, int level);
+void SUCCESS_LEVEL(char* s, int level);
 void ERROR(char* s);
 void SUCCESS(char* s);
 #endif
