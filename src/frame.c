@@ -426,7 +426,7 @@ struct Frame* frame_new_from_file(char* src){
                 switch(str[0]){
                     case 'S': {
                                   if(file_row > 1){
-                                      FILE* ftmp = fopen("tmp.fr", "w");
+                                      FILE* ftmp = fopen("frames/tmp.fr", "w");
                                       if(ftmp != NULL){ 
                                           do{
                                               fputs(str, ftmp);
@@ -436,7 +436,7 @@ struct Frame* frame_new_from_file(char* src){
                                           }while(!feof(fptr) && str[0] != 'E');
                                           fputs(str, ftmp);
                                           fclose(ftmp);
-                                          field = frame_new_from_file("tmp.fr");
+                                          field = frame_new_from_file("frames/tmp.fr");
                                           field->details.is_field = 1;
                                           ring_push(ring, node_new(field));
                                       }
