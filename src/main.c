@@ -1,4 +1,4 @@
-#include "./headers/framestack.h"
+#include "headers/framestack.h"
 
 int main(int argc, char* argv[]){
     if(argc > 1){

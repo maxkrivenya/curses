@@ -1,4 +1,4 @@
-#include "./headers/framestack.h"
+#include "headers/framestack.h"
 
 int frame_assertEqual_level(struct Frame* expected, struct Frame* result, int level){
     printf("\n");
