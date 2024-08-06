@@ -15,8 +15,8 @@ jobs:
     - uses: actions/checkout@v4
    # - name: configure
    #   run: ./configure
-    - working-directory: src/..
     - name: make
+      working-directory: src/..
       run: make -f makefile
     #- name: make check
     #  run: make check
