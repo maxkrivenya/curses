@@ -50,6 +50,9 @@ void frame_push_field(struct Frame* dest, struct Frame* fr);
 void frame_push_event(struct Frame* dest, struct Action* fr);
 
 struct Node* frame_get_first_field_node(struct Ring* ring);
+struct Node* frame_find_closest_field(struct Frame* fr, int row, int cur, int level);
 
 struct WinSize cursor_get(struct Frame* fr, struct Frame* x);
+
+void render_frame_to_frame(struct Frame* dest, struct Frame* fr, int lvl);
 #endif

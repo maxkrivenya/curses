@@ -1,4 +1,4 @@
-#include "./headers/frame.h"
+#include "./headers/framestack.h"
 
 int main(int argc, char* argv[]){
     if(argc > 1){
@@ -10,10 +10,15 @@ int main(int argc, char* argv[]){
         }
     }
     struct List* framestack = list_new();
-    list_push_tail(framestack, node_new(frame_console_new_default()));
+    
+    framestack_push_tail(framestack, frame_console_new_default());
+    framestack_push_tail(framestack, frame_new_from_file("./frames/auth.fr"));
+    framestack_push_tail(framestack, frame_new_from_file("./frames/fio.fr"));
+    
+    framestack_render(framestack, framestack->head->next);
+    framestack_print(framestack, framestack->head->next);
 
-    list_push_tail(framestack, node_new(frame_new_from_file("./frames/auth.fr")));
-    list_push_tail(framestack, node_new(frame_new_from_file("./frames/fio.fr")));
+
     /*----------------input*----------------------*/
     char input = '\0';
     int cursor = 0;
@@ -24,7 +29,8 @@ int main(int argc, char* argv[]){
     do{
         pos = cursor_get((struct Frame*)(frame_ptr->value), ((struct Frame*)(field_ptr->value)));
         ((struct Frame*)(field_ptr->value))->details.is_focus = 1;
-        frame_print((struct Frame*)(frame_ptr->value));
+        //frame_print((struct Frame*)(frame_ptr->value));
+        framestack_print(framestack, frame_ptr);
         printf("\033[%d;%dH", pos.height + 1, pos.width + 1 + cursor);
         do{
             input = getchar();
@@ -49,15 +55,10 @@ int main(int argc, char* argv[]){
                 cursor = 0;
                 input = '\0';
                 ((struct Frame*)(field_ptr->value))->details.is_focus = 0;
-                if(field_ptr->next != NULL){
-                    field_ptr = field_ptr->next;
-                }else{
-                    do{
-                        field_ptr = field_ptr->prev;
-                    }while(field_ptr->prev != NULL);
-                }
+                ring_next(((struct Frame*)(frame_ptr->value))->fields);
+                field_ptr = ((struct Frame*)(frame_ptr->value))->fields->head;
                 ((struct Frame*)(field_ptr->value))->details.is_focus = 1;
-                pos = cursor_get((struct Frame*)(frame_ptr), ((struct Frame*)(field_ptr->value)));
+                pos = cursor_get((struct Frame*)(frame_ptr->value), ((struct Frame*)(field_ptr->value)));
                 printf("\033[%d;%dH", pos.height + 1, pos.width + 1 + cursor);
             }
         }

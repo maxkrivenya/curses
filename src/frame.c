@@ -148,7 +148,7 @@ void frame_clear(struct Frame* fr){
     frame_print_name(fr);
 }
 
-struct Node* find_closest_field(struct Frame* fr, int row, int cur, int level){
+struct Node* frame_find_closest_field(struct Frame* fr, int row, int cur, int level){
     if(fr               == NULL){return NULL;}
     if(fr->fields        == NULL){return NULL;}
     if(fr->fields->head  == NULL){return NULL;}
@@ -167,7 +167,7 @@ struct Node* find_closest_field(struct Frame* fr, int row, int cur, int level){
                 ret = nptr;
             }else{
                 if(((struct Frame*)(nptr->value))->fields != NULL){
-                    from_ring = find_closest_field(((struct Frame*)(nptr->value)), row - ((struct Frame*)(nptr->value))->row, cur - ((struct Frame*)(nptr->value))->col, level + 1);
+                    from_ring = frame_find_closest_field(((struct Frame*)(nptr->value)), row - ((struct Frame*)(nptr->value))->row, cur - ((struct Frame*)(nptr->value))->col, level + 1);
                     if(from_ring != NULL){
                         if( i > ((struct Frame*)(nptr->value))->col + ((struct Frame*)(from_ring->value))->col - cur){
                             i = ((struct Frame*)(nptr->value))->col + ((struct Frame*)(from_ring->value))->col - cur;
@@ -195,6 +195,7 @@ struct Node* frame_get_first_field_node(struct Ring* ring){
     return ring->head;
 }
 
+
 int frame_print_row(struct Frame* fr, int row, int col, int level){
     if(fr->buf == NULL){printf("NUULL\n"); return 0;}
     int i = row - fr->row;
@@ -213,7 +214,7 @@ int frame_print_row(struct Frame* fr, int row, int col, int level){
         printf("%s%s", BACK_CYAN, FORE_YELLOW);
     }
     do{
-        next = find_closest_field(fr, i, j, level);
+        next = frame_find_closest_field(fr, i, j, level);
 
         if(next == NULL){
             write_until = fr->ws.width;
@@ -370,6 +371,16 @@ struct WinSize cursor_get(struct Frame* fr, struct Frame* x){
     return ws;
 }
 
+char rm_ctrl(char input){
+    switch(input){
+        case '+':{
+                     return input;
+                 }
+        default:{
+                    return 0;
+                }
+    }
+}
 
 struct Frame* frame_new_from_file(char* src){
     struct Frame* field = NULL;
