@@ -62,10 +62,12 @@ struct Frame* frame_new(char* filepath, struct WinSize ws, int rows, int cols, c
     fr->row = rows;
     fr->buf = (char*)calloc(fr->ws.height * fr->ws.width, CHUNK);
     fr->fields = ring_new();
-    fr->filepath = (char*)calloc(strlen(filepath), sizeof(char));
+    if(filepath != NULL){
+        fr->filepath = (char*)calloc(strlen(filepath), sizeof(char));
 
-    for(int i = 0; i < strlen(filepath); i++){
-        fr->filepath[i] = filepath[i];
+        for(int i = 0; i < strlen(filepath); i++){
+            fr->filepath[i] = filepath[i];
+        }
     }
 
     if(frame_name != NULL){
@@ -204,8 +206,10 @@ int frame_print_row(struct Frame* fr, int row, int col, int level){
     int write_until = 0;
 
     if(fr->details.is_field){
-        for(int k = 0; k < strlen(fr->name); k++){
-            printf("%c", fr->name[k]);
+        if(fr->name != NULL){
+            for(int k = 0; k < strlen(fr->name); k++){
+                printf("%c", fr->name[k]);
+            }
         }
     }
     printf("%s%s", fr->bc, fr->fc);
@@ -229,23 +233,25 @@ int frame_print_row(struct Frame* fr, int row, int col, int level){
         if(next != NULL){
             frame_print_row(((struct Frame*)(next->value)), row - fr->row, 0, level + 1);
             if(((struct Frame*)(next->value))->details.is_field){
-                j += (((struct Frame*)(next->value))->ws.width + strlen(((struct Frame*)(next->value))->name))* CHUNK;
-            }else{
-                j += (((struct Frame*)(next->value))->ws.width)* CHUNK;
+                if(((struct Frame*)(next->value))->name != NULL){
+                    j += (((struct Frame*)(next->value))->ws.width + strlen(((struct Frame*)(next->value))->name))* CHUNK;
+                }
+                }else{
+                    j += (((struct Frame*)(next->value))->ws.width)* CHUNK;
 
-            }
-            printf("%s%s", fr->bc, fr->fc);
-        }else{
-            printf("%s%s", fr->bc, fr->fc);
-            if(fr->details.is_focus == 1){
+                }
+                printf("%s%s", fr->bc, fr->fc);
+            }else{
+                printf("%s%s", fr->bc, fr->fc);
+                if(fr->details.is_focus == 1){
+                    printf(RESET);
+                    printf("%s%s", BACK_CYAN, FORE_YELLOW);
+                }
+                for(; j < fr->ws.width * CHUNK; j++){
+                    printf("%c", fr->buf[i * fr->ws.width * CHUNK + j ]);
+                }
                 printf(RESET);
-                printf("%s%s", BACK_CYAN, FORE_YELLOW);
-            }
-            for(; j < fr->ws.width * CHUNK; j++){
-                printf("%c", fr->buf[i * fr->ws.width * CHUNK + j ]);
-            }
-            printf(RESET);
-            return col + j;
+                return col + j;
         }
 
     }while(j < fr->ws.width * CHUNK);
