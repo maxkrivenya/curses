@@ -22,6 +22,7 @@ void framestack_print(struct List* framestack, struct Node* frame_ptr){
 }
 
 void framestack_render(struct List* framestack, struct Node* frame_ptr){
+    if(frame_ptr == framestack->head){ return; }
     struct Frame* console = (struct Frame*)framestack->head->value;
     frame_clear(console);
     struct Node* nptr = framestack->head->next;

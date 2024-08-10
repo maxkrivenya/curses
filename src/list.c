@@ -38,6 +38,21 @@ struct Node* list_pop_head(struct List* list){
     return nptr;
 }
 
+// NULL prev<-[1]-><-[2]->next NULL = NULL prev<-[2]->next NULL 
+struct Node* list_pop_tail(struct List* list){
+    if(list == NULL){ return NULL; }
+    if(list->head == NULL){ return NULL; }
+    struct Node* nptr = list->tail;
+    if(list->head == list->tail){
+        list->head = NULL;
+        list->tail = NULL;
+        return nptr;
+    }
+    list->tail = list->tail->prev;
+    list->tail->prev = NULL;
+    return nptr;
+}
+
 void list_free(struct List* list){
     if(list == NULL){return;}
     if(list->head == NULL){ return; }

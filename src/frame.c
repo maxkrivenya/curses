@@ -167,6 +167,7 @@ struct Node* frame_find_closest_field(struct Frame* fr, int row, int cur, int le
             if(((struct Frame*)(nptr->value))->col > cur && i > ((struct Frame*)(nptr->value))->col - cur){
                 i = ((struct Frame*)(nptr->value))->col - cur;
                 ret = nptr;
+                /*
             }else{
                 if(((struct Frame*)(nptr->value))->fields != NULL){
                     from_ring = frame_find_closest_field(((struct Frame*)(nptr->value)), row - ((struct Frame*)(nptr->value))->row, cur - ((struct Frame*)(nptr->value))->col, level + 1);
@@ -178,6 +179,7 @@ struct Node* frame_find_closest_field(struct Frame* fr, int row, int cur, int le
                     }
                 }
 
+            */
             }
         }
         if(level == 0) { break; }
@@ -190,6 +192,7 @@ struct Node* frame_find_closest_field(struct Frame* fr, int row, int cur, int le
 struct Node* frame_get_first_field_node(struct Ring* ring){
     if(ring == NULL) {return NULL; }
     if(ring->head == NULL) { return NULL; }
+    if(ring->head->value == NULL) { return NULL; }
     struct Node* ret = frame_get_first_field_node(((struct Frame*)(ring->head->value))->fields);
     if(ret != NULL){
         return ret;

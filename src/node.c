@@ -1,9 +1,5 @@
-#ifndef __node_h_
 #include "./headers/node.h"
-#endif
-#ifndef __frame_h_
 #include "./headers/frame.h"
-#endif
 
 struct Node* node_new(void* value){
    struct Node* node = (struct Node*)calloc(1, sizeof(struct Node));

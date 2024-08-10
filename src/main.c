@@ -6,7 +6,10 @@ int main(int argc, char* argv[]){
         switch(c) {
             case 'r':{ rain(); return 0;}
             case 'h':{ hacker_screen(); return 0;}
-            default:{printf("%s%sERROR: UNKNOWN OPT\n%s", BACK_BLACK, FORE_RED, RESET); return 1;}
+            default:{
+                        printf("%s%sERROR: UNKNOWN OPT\n%s", BACK_BLACK, FORE_RED, RESET); 
+                        return 1;
+                    }
         }
     }
     struct List* framestack = list_new();
@@ -23,11 +26,17 @@ int main(int argc, char* argv[]){
     char input = '\0';
     int cursor = 0;
     struct Node* frame_ptr = framestack->head->next;
-    struct Node* field_ptr = frame_get_first_field_node(((struct Frame*)(frame_ptr->value))->fields);
+    struct Node* field_ptr = frame_get_first_field_node(
+            ((struct Frame*)(frame_ptr->value))
+            ->fields
+    );
     struct WinSize pos = {0, 0};
 
     do{
-        pos = cursor_get((struct Frame*)(frame_ptr->value), ((struct Frame*)(field_ptr->value)));
+        pos = cursor_get(
+                (struct Frame*)(frame_ptr->value), 
+                (struct Frame*)(field_ptr->value)
+        );
         ((struct Frame*)(field_ptr->value))->details.is_focus = 1;
         //frame_print((struct Frame*)(frame_ptr->value));
         framestack_print(framestack, frame_ptr);
