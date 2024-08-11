@@ -1,7 +1,7 @@
 CC=gcc
 CFLAGS=-I.
 DEPS_H 	= src/headers/*.h
-DEPS_O 	= frame.o winsize.o node.o list.o defines.o ring.o fun_ctions.o framestack.o book.o
+DEPS_O 	= frame.o winsize.o node.o list.o defines.o ring.o fun_ctions.o framestack.o book.o node-frame.o
 
 %.o: ./src/%.c $(DEPS_H)
 	$(CC) -c -o $@ $< $(CFLAGS)

@@ -6,7 +6,7 @@ void frame_set_is_focus(struct Frame* fr, int val){
     fr->details.is_focus = val;
 }
 
-void cursor_set(struct WinSize pos, int offset){
+void frame_cursor_set(struct WinSize pos, int offset){
     printf("\033[%d;%dH", pos.height + 1, pos.width + 1 + offset);
 }
 
@@ -362,7 +362,7 @@ void frame_push_event(struct Frame* dest, struct Action* action){
     list_push_tail(dest->events, node_new(action));
 }
 
-struct WinSize cursor_get(struct Frame* fr, struct Frame* x){
+struct WinSize frame_cursor_get(struct Frame* fr, struct Frame* x){
     struct WinSize ws = {0,0};
     if(fr == NULL || x == NULL){ return ws; }
     if(fr->fields == NULL) { return ws; }
@@ -378,7 +378,7 @@ struct WinSize cursor_get(struct Frame* fr, struct Frame* x){
             return ws;
         }else{
             if(((struct Frame*)(nptr->value))->fields != NULL){
-                ws = cursor_get(((struct Frame*)(nptr->value)), x);
+                ws = frame_cursor_get(((struct Frame*)(nptr->value)), x);
                 if(ws.width > 0 &&  ws.height > 0){
                     if(ws.height != ((struct Frame*)(nptr->value))->row && ws.width != ((struct Frame*)(nptr->value))->col){
                         ws.height = ws.height + fr->row;
@@ -565,7 +565,7 @@ void frame_next_field(struct Node** frame_ptr, struct Node** field_ptr, struct W
 
     frame_set_is_focus(((struct Frame*)((*(field_ptr))->value)), 1);
 
-    *pos = cursor_get((struct Frame*)((*frame_ptr)->value), ((struct Frame*)((*(field_ptr))->value)));
-    cursor_set(*pos, 0);
+    *pos = frame_cursor_get((struct Frame*)((*frame_ptr)->value), ((struct Frame*)((*(field_ptr))->value)));
+    frame_cursor_set(*pos, 0);
 
 }

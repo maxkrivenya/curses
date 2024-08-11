@@ -35,7 +35,7 @@ void frame_print_name(struct Frame* fr);
 
 /*--------setters--------*/
 void frame_set_is_focus(struct Frame* fr, int val);
-void cursor_set(struct WinSize pos, int offset);
+void frame_cursor_set(struct WinSize pos, int offset);
 void frame_write(struct Frame* fr, int pos, char val);
 
 /*----constructors-----------*/
@@ -57,7 +57,7 @@ void frame_push_event(struct Frame* dest, struct Action* fr);
 struct Node* frame_get_first_field_node(struct Ring* ring);
 struct Node* frame_find_closest_field(struct Frame* fr, int row, int cur, int level);
 
-struct WinSize cursor_get(struct Frame* fr, struct Frame* x);
+struct WinSize frame_cursor_get(struct Frame* fr, struct Frame* x);
 
 void render_frame_to_frame(struct Frame* dest, struct Frame* fr, int lvl);
 void frame_next_field(struct Node** frame_ptr, struct Node** field_ptr, struct WinSize* pos);
