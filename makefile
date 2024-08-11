@@ -5,10 +5,11 @@ DEPS_O 	= frame.o winsize.o node.o list.o defines.o ring.o fun_ctions.o framesta
 
 %.o: ./src/%.c $(DEPS_H)
 	$(CC) -c -o $@ $< $(CFLAGS)
+
 %.o: ./src/targets/%.c $(DEPS_H)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-all: main test reader cards
+all: main test reader cards fun
 
 main: main.o $(DEPS_O)
 	$(CC) -o $@ $^ $(CFLAGS)
@@ -17,4 +18,6 @@ test: test.o $(DEPS_O)
 reader: reader.o $(DEPS_O)
 	$(CC) -o $@ $^ $(CFLAGS)
 cards: cards.o $(DEPS_O)
+	$(CC) -o $@ $^ $(CFLAGS)
+fun: fun.o $(DEPS_O)
 	$(CC) -o $@ $^ $(CFLAGS)

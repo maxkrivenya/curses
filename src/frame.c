@@ -11,7 +11,7 @@ void frame_cursor_set(struct WinSize pos, int offset){
 }
 
 void frame_write(struct Frame* fr, int pos, char val){
-    *(fr->buf + (pos-1)*CHUNK) = val;
+    *(fr->buf + pos*CHUNK) = val;
 }
 
 /*------------------------------------------------------*/
@@ -133,6 +133,19 @@ void frame_delete(struct Frame** frame){
     if(fr->filepath != NULL){ free(fr->filepath); }
     ring_free(fr->fields);
 
+}
+
+void frame_get_screen_value(struct Frame* fr, char* dest){
+    int i = 0;
+    
+    while(i < fr->ws.width * fr->ws.height){
+            if(!isalpha(fr->buf[i* CHUNK]) && !isdigit(fr->buf[i*CHUNK])){
+                *(dest + i) = '\0';
+                return;
+            }
+            *(dest + i) = *(fr->buf + i * CHUNK);
+            i++;
+    }
 }
 
 

@@ -61,5 +61,6 @@ struct WinSize frame_cursor_get(struct Frame* fr, struct Frame* x);
 
 void render_frame_to_frame(struct Frame* dest, struct Frame* fr, int lvl);
 void frame_next_field(struct Node** frame_ptr, struct Node** field_ptr, struct WinSize* pos);
+void frame_get_screen_value(struct Frame* fr, char* dest);
 
 #endif
