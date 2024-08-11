@@ -33,3 +33,12 @@ void framestack_render(struct List* framestack, struct Node* frame_ptr){
     printf(RESET);
 }
 
+void framestack_next(struct Node** frame_ptr, struct Node** field_ptr){
+    if((*frame_ptr)->next == NULL){
+        *frame_ptr = (*frame_ptr)->prev;
+    }else{
+        *frame_ptr = (*frame_ptr)->next;
+    }
+    *field_ptr = frame_get_first_field_node(((struct Frame*)((*frame_ptr)->value))->fields);
+}
+

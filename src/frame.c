@@ -1,6 +1,19 @@
 #include "./headers/frame.h"
 
 
+/*--------------------setters---------------------------*/
+void frame_set_is_focus(struct Frame* fr, int val){
+    fr->details.is_focus = val;
+}
+
+void cursor_set(struct WinSize pos, int offset){
+    printf("\033[%d;%dH", pos.height + 1, pos.width + 1 + offset);
+}
+
+void frame_write(struct Frame* fr, int pos, char val){
+    *(fr->buf + (pos-1)*CHUNK) = val;
+}
+
 /*------------------------------------------------------*/
 
 void frame_print_corners(struct Frame* fr){
@@ -541,4 +554,18 @@ struct Frame* frame_new_from_file(char* src){
     free(str);
     free(word);
 return new;
+}
+
+void frame_next_field(struct Node** frame_ptr, struct Node** field_ptr, struct WinSize* pos){
+
+    frame_set_is_focus(((struct Frame*)((*(field_ptr))->value)), 0);
+
+    ring_next(((struct Frame*)((*frame_ptr)->value))->fields);
+    *(field_ptr) = ((struct Frame*)((*frame_ptr)->value))->fields->head;
+
+    frame_set_is_focus(((struct Frame*)((*(field_ptr))->value)), 1);
+
+    *pos = cursor_get((struct Frame*)((*frame_ptr)->value), ((struct Frame*)((*(field_ptr))->value)));
+    cursor_set(*pos, 0);
+
 }

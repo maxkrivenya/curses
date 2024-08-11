@@ -1,4 +1,4 @@
-#include "headers/framestack.h"
+#include "./../headers/framestack.h"
 
 int frame_assertEqual_level(struct Frame* expected, struct Frame* result, int level){
     printf("\n");
@@ -279,16 +279,13 @@ int main(){
 
     //TESTS
 
-    char input;
-    do{
-        printf("\n>");
-        do{
-            input = getc(stdin);
-        }while (input == '\n');
-        printf("%c:%d\n", input, input);
-    }while(input != 'q');
+
+    for(int i = -128; i < 128; i++){
+        printf("%c:%d\n", i, i + 128);
+    }
 
     /*
+     *
        struct Frame* fr_exp = frame_new("id", get_winsize(20,80),                 0,  0,   BACK_BLUE, FORE_CYAN,    "what");
        struct Frame* frame1 = frame_new("id1", get_winsize(1,20),   5,  10,  BACK_BLACK, FORE_YELLOW, "Name:");
     struct Frame* frame2 = frame_new("id2", get_winsize(1,20),   10, 7,  BACK_BLACK, FORE_YELLOW, "Surname:");

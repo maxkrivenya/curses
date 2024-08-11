@@ -1,11 +1,9 @@
-#include "./headers/framestack.h"
-#include "./headers/book.h"
-#include "headers/frame.h"
-#include "headers/list.h"
+#include "../headers/framestack.h"
+#include "../headers/book.h"
 
 int main(){
     struct Book* book = book_new("./src/frame.c");
-    struct Frame* nav = frame_new_from_file("/home/myra/code_shenanigans/c/frame/frames/nav.fr");
+    struct Frame* nav = frame_new_from_file("/home/myra/code_shenanigans/frame/frames/nav.fr");
     struct Node* nptr = book->index->head;
     struct List* framestack = list_new();
     framestack_push_tail(framestack, book->pages);
