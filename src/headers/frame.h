@@ -1,6 +1,7 @@
 #ifndef __frame_h_
 #define __frame_h_
 #include "fun_ctions.h"
+#define  SPEC_KEY ':'
 
 
 struct Details{
@@ -35,7 +36,11 @@ void frame_print_name(struct Frame* fr);
 
 /*--------setters--------*/
 void frame_set_is_focus(struct Frame* fr, int val);
+void frame_set_bc(struct Frame* fr, const char* bc);
+void frame_set_fc(struct Frame* fr, const char* fc);
 void frame_cursor_set(struct WinSize pos, int offset);
+
+struct Action* frame_get_action(struct Frame* fr, char trigger);
 void frame_write(struct Frame* fr, int pos, char val);
 
 /*----constructors-----------*/

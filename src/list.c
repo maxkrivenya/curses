@@ -9,7 +9,7 @@ struct List* list_new(){
 
 void list_push_tail(struct List* list, struct Node* new_node){
     if(list == NULL){ list = list_new(); }
-    if(list->head == NULL){
+    if(list->head == NULL || list->tail == NULL){
         list->head = new_node;
         list->tail = new_node;
         new_node->prev = NULL;

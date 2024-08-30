@@ -1,5 +1,6 @@
 #include "./headers/node.h"
 #include "./headers/frame.h"
+#include "./headers/action.h"
 
 struct Node* node_new(void* value){
    struct Node* node = (struct Node*)calloc(1, sizeof(struct Node));
@@ -16,5 +17,8 @@ struct Node* node_new(void* value){
 void node_delete(struct Node* node){
     if(sizeof(*(node->value)) == sizeof(struct Frame)){
         frame_delete((struct Frame**)(&node->value));
+    }
+    if(sizeof(*(node->value)) == sizeof(struct Action)){
+        action_delete((struct Action*)(&node->value));
     }
 }

@@ -1,9 +1,18 @@
 #include "./headers/frame.h"
+#include "./headers/action.h"
 
 
 /*--------------------setters---------------------------*/
 void frame_set_is_focus(struct Frame* fr, int val){
     fr->details.is_focus = val;
+}
+
+void frame_set_bc(struct Frame* fr, const char* bc){
+    fr->bc = bc;
+}
+
+void frame_set_fc(struct Frame* fr, const char* fc){
+    fr->fc = fc;
 }
 
 void frame_cursor_set(struct WinSize pos, int offset){
@@ -75,6 +84,7 @@ struct Frame* frame_new(char* filepath, struct WinSize ws, int rows, int cols, c
     fr->row = rows;
     fr->buf = (char*)calloc(fr->ws.height * fr->ws.width, CHUNK);
     fr->fields = ring_new();
+    fr->events = list_new();
     if(filepath != NULL){
         fr->filepath = (char*)calloc(strlen(filepath), sizeof(char));
 
@@ -132,6 +142,7 @@ void frame_delete(struct Frame** frame){
     if(fr->name != NULL){ free(fr->name); }
     if(fr->filepath != NULL){ free(fr->filepath); }
     ring_free(fr->fields);
+    list_free(fr->events);
 
 }
 
@@ -369,9 +380,10 @@ void frame_push_event(struct Frame* dest, struct Action* action){
     struct Action* nptr = frame_event_taken(dest, action->trigger);
     if(nptr != NULL){
         ERROR("EVENT ALREADY TAKEN");
-        printf("%c:%s\n", action->trigger, action->frame_id);
+        //printf("%c:%s\n", action->trigger, action->frame_id);
         return;
     }
+    action->parent = dest;
     list_push_tail(dest->events, node_new(action));
 }
 
@@ -581,4 +593,30 @@ void frame_next_field(struct Node** frame_ptr, struct Node** field_ptr, struct W
     *pos = frame_cursor_get((struct Frame*)((*frame_ptr)->value), ((struct Frame*)((*(field_ptr))->value)));
     frame_cursor_set(*pos, 0);
 
+}
+
+struct Action* frame_get_action(struct Frame* fr, char trigger){
+    if(fr == NULL){
+        ERROR("FRAME IS NULL");
+        return NULL;
+    }
+    if(fr->events == NULL){
+        ERROR("NO EVENTS");
+        return NULL;
+    }
+    if(fr->events->head == NULL){return NULL;}
+
+    struct Node* nptr;
+    struct Action* act;
+
+    nptr = fr->events->head;
+
+    do{
+        act = ((struct Action*)(nptr->value));
+        if(act->trigger == trigger){
+            return act;
+        }
+        nptr = nptr->next;
+    }while(nptr != NULL);
+    return NULL;
 }
