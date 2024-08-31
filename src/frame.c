@@ -72,6 +72,16 @@ void frame_print_name(struct Frame* fr){
     }
 }
 
+void* frame_handle_action(struct Frame* frame_ptr, struct Frame* field_ptr, char trigger){
+    struct Action* act;
+    act = frame_get_action(field_ptr, trigger);
+    if(act == NULL){ act = frame_get_action(frame_ptr, trigger);}
+    if(act != NULL){ 
+        return act->action(act->parent, act->parameters);
+    }
+    return NULL;
+}
+
 /*------------------------------------------------------*/
 
 struct Frame* frame_new(char* filepath, struct WinSize ws, int rows, int cols, const char* bc, const char* fc, char* frame_name){
@@ -620,3 +630,4 @@ struct Action* frame_get_action(struct Frame* fr, char trigger){
     }while(nptr != NULL);
     return NULL;
 }
+

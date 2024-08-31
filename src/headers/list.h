@@ -13,4 +13,6 @@ struct Node*    list_pop_tail(struct List* list);
 struct Node*    list_pop_head(struct List* list);
 void            list_free(struct List* list);
 
+int     list_contains(struct List* list, struct Node* node);
+void    list_shift(struct List* list, struct Node* node);
 #endif

@@ -12,5 +12,6 @@ void node_frame_set_bc(struct Node* node, const char* bc);
 void node_frame_set_fc(struct Node* node, const char* fc);
 void node_frame_push_event(struct Node* node, struct Action* act);
 
+void* node_frame_handle_action(struct Node* frame_ptr, struct Node* field_ptr, char trigger);
 struct Action* node_frame_get_action(struct Node* node, char trigger);
 #endif

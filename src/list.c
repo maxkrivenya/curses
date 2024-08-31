@@ -49,8 +49,26 @@ struct Node* list_pop_tail(struct List* list){
         return nptr;
     }
     list->tail = list->tail->prev;
-    list->tail->prev = NULL;
+    list->tail->next = NULL;
     return nptr;
+}
+
+void list_shift(struct List* list, struct Node* node){
+    if(list == NULL){ return; }
+    if(node == NULL){ return; }
+    if(list->head == NULL || list->tail == NULL) { return; }
+    if(list_contains(list, node) == 0){ return; }
+
+    struct Node* prev = node->prev;
+    struct Node* next = node->next;
+
+    if(prev != NULL){
+        prev->next = next;
+    }
+    if(next != NULL){
+        next->prev = prev;
+    }
+    node_delete(node);
 }
 
 void list_free(struct List* list){
@@ -69,3 +87,15 @@ void list_free(struct List* list){
     free(list);
 }
 
+int list_contains(struct List* list, struct Node* node){
+    if(list == NULL){ return 0; }
+    if(node == NULL){ return 0; }
+    if(list->head == NULL || list->tail == NULL) { return 0; }
+
+    struct Node* nptr = list->head;
+    do{
+        if(nptr == node){ return 1; }
+        nptr = nptr->next;
+    }while(nptr != NULL);
+    return 0;
+}

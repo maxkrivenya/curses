@@ -1,6 +1,6 @@
 #include "./headers/action.h"
 
-struct Action* action_new(char trigger, void (*func_ptr)(struct Frame*, void*), void* params){
+struct Action* action_new(char trigger, void* (*func_ptr)(struct Frame*, void*), void* params){
    struct Action* action = (struct Action*)calloc(1, sizeof(struct Action));
 
    action->trigger = trigger;

@@ -42,6 +42,7 @@ void frame_cursor_set(struct WinSize pos, int offset);
 
 struct Action* frame_get_action(struct Frame* fr, char trigger);
 void frame_write(struct Frame* fr, int pos, char val);
+void* frame_handle_action(struct Frame* frame_ptr, struct Frame* field_ptr, char trigger);
 
 /*----constructors-----------*/
 struct Frame* frame_new(char* filename, struct WinSize ws, int rows, int cols, const char* bc, const char* fc, char* frame_name);

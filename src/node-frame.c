@@ -16,6 +16,13 @@ struct WinSize node_frame_cursor_get(struct Node* fr, struct Node* x){
     );
 }
 
+void* node_frame_handle_action(struct Node* frame_ptr, struct Node* field_ptr, char trigger){
+    return frame_handle_action(
+            ((struct Frame*)(frame_ptr->value)),
+            ((struct Frame*)(field_ptr->value)),
+            trigger);
+}
+
 void node_frame_set_is_focus(struct Node* node, int val){
     return frame_set_is_focus((struct Frame*)(node->value), val);
 }

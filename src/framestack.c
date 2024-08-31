@@ -1,5 +1,11 @@
 #include "./headers/framestack.h"
 
+struct List* framestack_new(){
+    struct List* framestack = list_new();
+    framestack_push_tail(framestack, frame_console_new_default());
+    return framestack; 
+}
+
 void framestack_push_tail(struct List* framestack, struct Frame* fr){
     struct WinSize ws = get_console_size();
     if(!fr->row || !fr->col){
@@ -42,3 +48,17 @@ void framestack_next(struct Node** frame_ptr, struct Node** field_ptr){
     *field_ptr = frame_get_first_field_node(((struct Frame*)((*frame_ptr)->value))->fields);
 }
 
+void framestack_pointers_init(struct List* framestack, struct Node** frame_ptr, struct Node** field_ptr){
+    if(frame_ptr == NULL || field_ptr == NULL){ return; }
+    if(framestack == NULL){
+        *frame_ptr = NULL;
+        *field_ptr = NULL;
+        return;
+    }
+    *frame_ptr = framestack->head->next;
+    if(*frame_ptr != NULL){
+        *field_ptr = node_frame_get_first_field_node(*frame_ptr);
+    }else{
+        *field_ptr = NULL;
+    }
+}

@@ -1,60 +1,54 @@
 #include "./../headers/framestack.h"
+//TODO: i should probably start reading strings and not chars....
+//that way i have to call render && print once per input rather than every char
 
-void do_stuff(struct Frame* fr, void* params){
-    fr->bc = BACK_BLACK;
-    fr->fc = FORE_RED;
-}
+//TODO: add frame search in some_PATH
 
+//TODO: make ON-EVENTS:
+//  1. GOTO - search for a specified .fr file and push it onto framestack.
+//  2. maybe something like SET arg1 arg2 -> switch call a frame_set func
 
 int main(int argc, char* argv[]){
-//FILE* mstream = fopen("mstream.txt", "w");
+
     int     cursor          = 0;
+    int     field_width     = 0;
     char    input           = '\0';
     char    prev_input      = '\0';
     char*   screen_value    = (char*)calloc(WORDLEN_MAX, sizeof(char));
 
-    struct List*    framestack  = list_new();
+    struct List*    framestack  = framestack_new();
     struct Node*    frame_ptr;
     struct Node*    field_ptr;
     struct Node*    event_ptr;
-    struct WinSize  pos         = {0, 0};
+    struct WinSize  cursor_pos  = {0, 0};
     
-    framestack_push_tail(framestack, frame_console_new_default());
     framestack_push_tail(framestack, frame_new_from_file("./frames/auth.fr"));
     framestack_push_tail(framestack, frame_new_from_file("./frames/fio.fr"));
 
-    frame_ptr = framestack->head->next;
-    field_ptr = node_frame_get_first_field_node(frame_ptr);
+    /* framestack_init */
+    framestack_pointers_init(framestack, &frame_ptr, &field_ptr);
+    framestack_render(framestack, frame_ptr);  
+    framestack_print(framestack,  frame_ptr); 
+    /* framestack_init */
 
-    framestack_render(framestack, framestack->head->next);
-    framestack_print(framestack, framestack->head->next);
+    /*----------------input----------------------*/
 
-    /*----------------input*----------------------*/
-
-    /*---------------test---------------------*/
-    struct Action* act = action_new(
-                       '1', 
-                       do_stuff, 
-                       frame_ptr->value
-    );
-    node_frame_push_event(framestack->tail, act);
-    /*---------------test---------------------*/
     do{
         do{
-            pos     = node_frame_cursor_get(frame_ptr, field_ptr);
-
+            field_width = ((struct Frame*)(field_ptr->value))->ws.width - 1;
+            
+            cursor_pos = node_frame_cursor_get(frame_ptr, field_ptr);
             node_frame_set_is_focus(field_ptr, 1);
+
             framestack_print(framestack, frame_ptr);
-            frame_cursor_set(pos, cursor);
+            frame_cursor_set(cursor_pos, cursor);
 
             prev_input = input;
             input = getchar();
 
-            frame_cursor_set(pos, cursor);
-
             if(prev_input != SPEC_KEY){
                 switch(input){
-                    case '+' :{   //going to be a switch case on frame_ptr->value->events
+                    case '+' :{
                                   node_frame_get_screen_value(field_ptr, screen_value);
                                   framestack_next(&frame_ptr, &field_ptr);
 
@@ -63,7 +57,7 @@ int main(int argc, char* argv[]){
                               }
                     case '\t':{
                                   node_frame_get_screen_value(field_ptr, screen_value);
-                                  frame_next_field(&frame_ptr, &field_ptr, &pos);
+                                  frame_next_field(&frame_ptr, &field_ptr, &cursor_pos);
 
                                   cursor  = 0;
                                   break;
@@ -71,9 +65,6 @@ int main(int argc, char* argv[]){
                     case '\n':{
                                   break;
                               }
-                    case SPEC_KEY:{
-                                      break;
-                                  }
                     default:{
                                 node_frame_write(field_ptr, cursor, input);
                                 node_frame_get_screen_value(field_ptr, screen_value);
@@ -82,16 +73,17 @@ int main(int argc, char* argv[]){
                             }
                 }
             }else{
-                act = node_frame_get_action(field_ptr, input);
-                if(act == NULL){ act = node_frame_get_action(frame_ptr, input);}
-                if(act != NULL){ 
-                    act->action(act->parent, act->parameters);
-                }
+                node_frame_handle_action(frame_ptr, field_ptr, input);
             }
-        }while(input != 'q' && cursor < ((struct Frame*)(field_ptr->value))->ws.width - 1);
+        }while(input != 'q' && cursor < field_width);
         if(prev_input != SPEC_KEY){
             if(input == 'q'){
-                break;
+                list_pop_tail(framestack);
+                //list_shift(framestack, frame_ptr);
+                framestack_pointers_init(framestack, &frame_ptr, &field_ptr);
+                if(frame_ptr == NULL){
+                    break;
+                }
             }else{
                 //TODO: make an alert-box
                 //1. push a frame with text and a button to framestack
