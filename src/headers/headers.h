@@ -2,12 +2,22 @@
 #define __headers_h_
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/ioctl.h>
-#include <sys/stat.h>
 #include <fcntl.h>
-#include <err.h>
-#include <termios.h>
-#include <unistd.h>
+
+
 #include <string.h>
 #include <ctype.h>
+
+#ifdef linux
+      #include <err.h>
+      #include <unistd.h>
+      #include <termios.h>
+      #include <sys/ioctl.h>
+      #include <sys/stat.h>
+#endif
+
+#ifdef _WIN32
+	#include <windows.h>
+#endif
+
 #endif

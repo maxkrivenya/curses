@@ -1,6 +1,7 @@
 #include "headers/framestack.h"
 
 int main(int argc, char* argv[]){
+    #ifdef linux
     if(argc > 1){
         char c = getopt(argc, argv, "rh");
         switch(c) {
@@ -9,6 +10,7 @@ int main(int argc, char* argv[]){
             default:{printf("%s%sERROR: UNKNOWN OPT\n%s", BACK_BLACK, FORE_RED, RESET); return 1;}
         }
     }
+    #endif
     struct List* framestack = list_new();
     
     framestack_push_tail(framestack, frame_console_new_default());
