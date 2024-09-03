@@ -22,7 +22,9 @@ void hacker_screen(){
         for(int i = 0; i < ws.width; i++){
             buf[i] = 'a' + rand()%26;
         }
-        usleep(50000);
+        #ifdef linux
+	usleep(50000);
+	#endif
     }while(l < 1000);
 
     printf(RESET);
@@ -75,7 +77,9 @@ void rain(){
                 buf[i] = '|';
             }
         }
-        usleep(50000);
+        #ifdef linux
+	usleep(50000);
+	#endif
     }while(l < 100);
 
     printf(RESET);

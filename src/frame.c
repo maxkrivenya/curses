@@ -389,8 +389,7 @@ void frame_push_event(struct Frame* dest, struct Action* action){
     if(dest->events == NULL){ dest->events = list_new(); }
     struct Action* nptr = frame_event_taken(dest, action->trigger);
     if(nptr != NULL){
-        ERROR("EVENT ALREADY TAKEN");
-        //printf("%c:%s\n", action->trigger, action->frame_id);
+        //ERROR("EVENT ALREADY TAKEN");
         return;
     }
     action->parent = dest;

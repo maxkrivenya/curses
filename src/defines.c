@@ -13,10 +13,11 @@ void ERROR_LEVEL(char* s, int level){
         printf("%s%sERROR:UNKNOWN%s\n", BACK_BLACK, FORE_RED, RESET);
     }
 }
-
+#ifdef linux
 void ERROR(char* s){
     ERROR_LEVEL(s, 0);
 }
+#endif
 
 void SUCCESS_LEVEL(char* s, int level){
     printf("\n");
