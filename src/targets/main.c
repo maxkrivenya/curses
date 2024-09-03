@@ -8,6 +8,11 @@
 //  1. GOTO - search for a specified .fr file and push it onto framestack.
 //  2. maybe something like SET arg1 arg2 -> switch call a frame_set func
 
+//TODO: add buttons
+//  a field with 'y' == 'q'?
+//TODO: add checkboxes
+//TODO: add radiosets ig
+
 int main(int argc, char* argv[]){
 
     int     cursor          = 0;
@@ -79,7 +84,6 @@ int main(int argc, char* argv[]){
         if(prev_input != SPEC_KEY){
             if(input == 'q'){
                 list_pop_tail(framestack);
-                //list_shift(framestack, frame_ptr);
                 framestack_pointers_init(framestack, &frame_ptr, &field_ptr);
                 if(frame_ptr == NULL){
                     break;
